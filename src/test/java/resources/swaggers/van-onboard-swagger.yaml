@@ -1,0 +1,444 @@
+openapi: 3.0.1
+info:
+  title: Van Partner Onboarding
+  description: Definition for VAN Partner onboarding
+  contact:
+    email: B2BCloud-Visualization@softwareag.com
+  version: "1.0"
+servers:
+- url: https://awdevtenant1.eur.ad.sag/b2b
+paths:
+  /external/van/identities:
+    get:
+      tags:
+      - Enterprise Onboarding
+      summary: Get all identities from VAN
+      description: Get all identities from VAN
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  identities:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          description: Type of identity or qualifier
+                          example: "01"
+                        label:
+                          type: string
+                          description: Label of qualifier
+                          example: DUNS
+                        value:
+                          type: string
+                          description: Value of the identity or EDI Id
+                          example: "123456"
+                        status:
+                          type: string
+                          description: status of the identity
+                          example: PENDING
+                        errorCode:
+                          type: integer
+                          description: error code
+                          example: 0
+                        errorCodeDescription:
+                          type: string
+                          description: description for error code
+                          example: ""
+                        apiError:
+                          type: string
+                          description: type of api error
+                          example: ""
+                        apiErrorMessage: 
+                          type: string
+                          description: api error message details
+                          example: ""
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "401":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      tags:
+      - Enterprise Onboarding
+      summary: Registers identities in VAN for an Enterprise
+      description: The enterprise identities to be created
+      requestBody:
+        description: The identities to be created
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/Identity'
+        required: false
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  identitiesResponse:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          description: Type of identity or qualifier
+                          example: "01"
+                        value:
+                          type: string
+                          description: Value of the identity or EDI Id
+                          example: "123456"
+                        status:
+                          type: string
+                          description: status of the identity
+                          example: PENDING
+                        errorCode:
+                          type: integer
+                          description: error code
+                          example: 0
+                        apiError:
+                          type: string
+                          description: type of api error
+                          example: ""
+                        apiErrorMessage: 
+                          type: string
+                          description: api error message details
+                          example: ""
+                        message:
+                          type: string
+                          description: message about the EDIID being added successfully to mailslot
+                          example: "EDIID successfully added to mailslot: SFSH51T0"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "401":
+          description: Access Denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      x-codegen-request-body-name: identities
+  /external/van/identity/type/{type}/value/{value}:
+    delete:
+      tags:
+      - Enterprise Onboarding
+      summary: Delete the identity from VAN
+      description: Provide identityType and identityValue to identify the resources
+        to delete
+      parameters:
+      - name: type
+        in: path
+        description: Type of the identity e.g. "01"
+        required: true
+        schema:
+          type: string
+      - name: value
+        in: path
+        description: Value of the identity e.g. "123456"
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          description: Type of identity or qualifier
+                          example: "01"
+                        value:
+                          type: string
+                          description: Value of the identity or EDI Id
+                          example: "123456"
+                        status:
+                          type: string
+                          description: status of the identity
+                          example: DELETE PENDING
+                        errorCode:
+                          type: integer
+                          description: error code
+                          example: 0
+                        errorCodeDescription:
+                          type: string
+                          description: description for error code
+                          example: ""
+                        apiError:
+                          type: string
+                          description: type of api error
+                          example: ""
+                        apiErrorMessage: 
+                          type: string
+                          description: api error message details
+                          example: ""
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "401":
+          description: Access Denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /external/van/partner/search:
+    post:
+      tags:
+      - Partner Onboarding
+      summary: Search for partners in IBM VAN
+      description: Search for partners in IBM VAN based on criteria provided in the
+        request body.
+      operationId: searchPartnersInVan
+      parameters:
+      - name: pageSize
+        in: query
+        description: Page size
+        schema:
+          type: integer
+          format: int32
+          default: 20
+      - name: pageNumber
+        in: query
+        description: Page Number
+        schema:
+          type: integer
+          format: int32
+          default: 1
+      - name: limit
+        in: query
+        description: Limit the number of records
+        schema:
+          type: integer
+          format: int32
+      requestBody:
+        description: Search criteria for partners.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                identity:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      example: "1"
+                    value:
+                      type: string
+                      example: "12345"
+                    operation:
+                      type: string
+                      enum:
+                      - Equals
+                      - Contains
+                      - BeginsWith
+                      - EndsWith
+                organisation:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      example: Adobe
+                    operation:
+                      type: string
+                      enum:
+                      - Equals
+                      - Contains
+                      - BeginsWith
+                      - EndsWith
+        required: true
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    organisation:
+                      type: string
+                      example: Adobe
+                    identity:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/Identity'
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "401":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      x-codegen-request-body-name: body
+  /external/van/partner/onboard:
+    post:
+      tags:
+      - Partner Onboarding
+      summary: Onboard a partner in IBM VAN
+      description: Onboards a partner into IBM VAN
+      operationId: onboardPartner
+      requestBody:
+        description: List of partners to onboard.
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+                properties:
+                  operation:
+                    type: string
+                    enum:
+                    - CREATE
+                    - MAP
+                  identities:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          example: "1"
+                        value:
+                          type: string
+                          example: "12345"
+                        label:
+                          type: string
+                          example: "DEA"
+                  partnerName:
+                    type: string
+                    example: flipkart
+                  partnerId:
+                    type: string
+                    example: "56789"
+                  channelPreferred:
+                    type: boolean
+        required: true
+      responses:
+        "200":
+          description: Successfully onboarded partners.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  hasErrors:
+                    type: boolean
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        partnerId:
+                          type: string
+                          example: "56789"
+                        error:
+                          $ref: '#/components/schemas/Error'
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "401":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      x-codegen-request-body-name: body
+components:
+  schemas:
+    Identity:
+      type: object
+      properties:
+        type:
+          type: string
+          example: "1"
+        value:
+          type: string
+          example: "12345"
+    Error:
+      type: object
+      properties:
+        error:
+          type: object
+          required:
+            - code
+            - message
+          properties:
+            code:
+              type: string
+              example: abc
+            message:
+              type: string
+              example: Something went wrong
+            resource:
+              type: string
+              example: Associated B2B resource
+            details:
+              type: string
+              example: details of what went wrong

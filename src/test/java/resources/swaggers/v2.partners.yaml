@@ -1,0 +1,3279 @@
+swagger: '2.0'
+info:
+  description: Definition for Trading Networks Partner profile Management
+  version: '1.6'
+  title: Manage Partner profiles
+  contact:
+    email: B2BCloud-Visualization@softwareag.com
+host: vmb2bcloud.eur.ad.sag
+basePath: /b2b
+tags:
+  - name: Partners
+  - name: Partner Corporation
+  - name: Partner Identities
+  - name: Partner Addresses
+  - name: Partner Contacts
+  - name: Partner Users
+  - name: Partner Groups
+  - name: Contact Types
+  - name: ID Types
+  - name: Custom ID Types
+  - name: Users
+  - name: Channels
+  - name: Partner extended field groups
+  - name: Extended fields
+  - name: Partner Control number
+  - name: Partner Settings
+  - name: Queue
+
+schemes:
+  - https
+produces:
+  - application/json
+consumes:
+  - application/json
+paths:
+  /partners:
+    get:
+      summary: Get all partners
+      description: Gets `Partner` objects.
+      parameters:
+        - name: active
+          in: query
+          description: Filter records based on active (true/false/empty).
+          required: false
+          type: boolean
+        - name: pageSize
+          in: query
+          description: Page size
+          required: false
+          type: integer
+          format: int32
+          default: 20
+        - name: pageNumber
+          in: query
+          description: Page Number
+          required: false
+          type: integer
+          format: int32
+          default: 1
+        - name: queryId
+          in: query
+          description: Query identifier
+          required: false
+          type: string
+        - name: limit
+          in: query
+          description: Limit the number of records
+          required: false
+          type: integer
+          format: int32
+        - name: q
+          in: query
+          description: query for filter
+          required: false
+          type: string
+        - name: sort
+          in: query
+          description: Sort details
+          required: false
+          type: string
+          default: +name
+        - name: expand
+          in: query
+          description: For extra partner details like contact
+          required: false
+          type: string
+      tags:
+        - Partners
+      responses:
+        '200':
+          description: Successful response
+          schema:
+            title: Partners
+            properties:
+              totalCount:
+                type: integer
+              totalPages:
+                type: integer
+              pageSize:
+                type: integer
+              pageNumber:
+                type: integer
+              links:
+                type: array
+                items:
+                  $ref: '#/definitions/Link'
+              partners:
+                type: array
+                items:
+                  $ref: '#/definitions/PartnerBasic'
+        '400':
+          description: Bad request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '401':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+    post:
+      summary: 'Create a new partner, with basic information'
+      description: >-
+        Add a new Partner. (optional) reference to existing partner to copy
+        other config data
+      tags:
+        - Partners
+      parameters:
+        - in: body
+          name: partner
+          description: The partner to be created
+          schema:
+            $ref: '#/definitions/NewPartner'
+      responses:
+        '201':
+          description: Created
+          schema:
+            $ref: '#/definitions/CreatedEntity'
+        '400':
+          description: Bad request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '401':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  '/partners/{id}':
+    delete:
+      summary: Deletes the specified partner
+      description: Delete the specified partner
+      tags:
+        - Partners
+      parameters:
+        - name: id
+          description: partner identifier
+          in: path
+          type: string
+          required: true
+      responses:
+        '204':
+          description: successful operation
+        '400':
+          description: Bad request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '401':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  '/partners/{id}/corporation':
+    get:
+      summary: 'Get the corporation details, for the specified partner'
+      description: Get the partner's corporation details
+      tags:
+        - Partner Corporation
+      parameters:
+        - name: id
+          description: partner identifier
+          in: path
+          required: true
+          type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/Corporation'
+        '400':
+          description: Bad request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '401':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+    put:
+      summary: 'Updates the corporation details, for the specified partner'
+      description: Update the partner's corporation details
+      tags:
+        - Partner Corporation
+      parameters:
+        - name: id
+          in: path
+          description: partner identifier
+          required: true
+          type: string
+        - in: body
+          name: corporation
+          description: Corporation details that needs to be updated
+          required: true
+          schema:
+            $ref: '#/definitions/Corporation'
+      responses:
+        '204':
+          description: successful operation
+        '400':
+          description: Bad request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '401':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  '/partners/{id}/identities':
+    get:
+      summary: 'Get all the identity details, for the specified partner'
+      description: Get the partner's identities list
+      tags:
+        - Partner Identities
+      parameters:
+        - name: id
+          in: path
+          description: partner identifier
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Successful response
+          schema:
+            type: object
+            properties:
+              identities:
+                type: array
+                items:
+                  $ref: '#/definitions/Identity'
+        '400':
+          description: Bad request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '401':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+    post:
+      summary: Create a new identity for the specified partner
+      description: Create a new identity for the specified partner
+      tags:
+        - Partner Identities
+      parameters:
+        - name: id
+          in: path
+          description: partner identifier
+          required: true
+          type: string
+        - in: body
+          name: identity
+          description: The identity to be created
+          schema:
+            $ref: '#/definitions/NewIdentity'
+      responses:
+        '201':
+          description: Created
+          schema:
+            type: object
+            properties:
+              externalId:
+                type: string
+        '400':
+          description: Bad request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '401':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  '/partners/{id}/identities/{external_id}':
+    put:
+      summary: >-
+        Update the partner identity, based on the external id, for the specified
+        partner
+      description: Update the partner's identities details
+      tags:
+        - Partner Identities
+      parameters:
+        - name: id
+          in: path
+          description: partner identifier
+          required: true
+          type: string
+        - name: external_id
+          in: path
+          description: external identifier's id
+          required: true
+          type: string
+        - in: body
+          name: identity
+          description: The identity to be updated
+          schema:
+            $ref: '#/definitions/NewIdentity'
+      responses:
+        '204':
+          description: successful operation
+        '400':
+          description: Bad request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '401':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+    delete:
+      summary: >-
+        Delete the partner identity, based on the external id, for the specified
+        partner
+      description: Update the partner's identities details
+      tags:
+        - Partner Identities
+      parameters:
+        - name: id
+          in: path
+          description: partner identifier
+          required: true
+          type: string
+        - name: external_id
+          in: path
+          description: external identifier's id
+          required: true
+          type: string
+      responses:
+        '204':
+          description: successful operation
+        '400':
+          description: Bad request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '401':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  '/partners/identities/checkDuplicate':
+    get:
+      summary: >-
+        Checks if the external id type and external id pairs exist already
+      description: Checks for duplicate external id type and id pairs
+      tags:
+        - Partner Identities
+      parameters:
+        - in: query
+          name: externalIdType
+          description: The identity type
+          type: string
+        - in: query
+          name: externalIdValue
+          description: The identity value
+          type: string
+
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            properties:
+              isDuplicate:
+                type: boolean
+        '400':
+          description: Bad request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '401':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  '/partners/{id}/addresses':
+    get:
+      summary: 'Get all the addresses defined, for the specified partner'
+      description: Get the partner's addresses list
+      tags:
+        - Partner Addresses
+      parameters:
+        - name: id
+          in: path
+          description: partner identifier
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Successful response
+          schema:
+            type: object
+            properties:
+              addresses:
+                type: array
+                items:
+                  $ref: '#/definitions/Address'
+        '400':
+          description: Bad request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '401':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+    post:
+      summary: Create a new address for the specified partner
+      description: Add a new address to the partner's details
+      tags:
+        - Partner Addresses
+      parameters:
+        - name: id
+          in: path
+          description: partner identifier
+          required: true
+          type: string
+        - in: body
+          name: address
+          description: The address to be created
+          schema:
+            $ref: '#/definitions/NewAddress'
+      responses:
+        '201':
+          description: Created
+          schema:
+            type: object
+            properties:
+              addressId:
+                type: string
+        '400':
+          description: Bad request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '401':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  '/partners/{id}/addresses/{address_id}':
+    put:
+      summary: >-
+        Update an address, based on the specified address identifier, for the
+        specified partner
+      description: Update specified address of a partner
+      tags:
+        - Partner Addresses
+      parameters:
+        - name: id
+          in: path
+          description: partner identifier
+          required: true
+          type: string
+        - name: address_id
+          in: path
+          description: address identifier
+          required: true
+          type: string
+        - in: body
+          name: address
+          description: The address to be updated
+          schema:
+            $ref: '#/definitions/NewAddress'
+      responses:
+        '204':
+          description: successful operation
+        '400':
+          description: Bad request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '401':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+    delete:
+      summary: >-
+        Delete the address, based on the address identifier, for the specified
+        partner
+      description: Delete specified address of a partner
+      tags:
+        - Partner Addresses
+      parameters:
+        - name: id
+          in: path
+          description: partner identifier
+          required: true
+          type: string
+        - name: address_id
+          in: path
+          description: address identifier
+          required: true
+          type: string
+      responses:
+        '204':
+          description: successful operation
+        '400':
+          description: Bad request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '401':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  '/partners/{id}/contacts':
+    get:
+      summary: 'Get all the contacts defined, for the specified partner'
+      description: Get the partner's contact details
+      tags:
+        - Partner Contacts
+      parameters:
+        - name: id
+          in: path
+          description: contact identifier
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Successful response
+          schema:
+            type: object
+            properties:
+              contacts:
+                type: array
+                items:
+                  $ref: '#/definitions/Contact'
+        '400':
+          description: Bad request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '401':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+    post:
+      summary: Create a new contact for the specified partner
+      description: Add a new contact to the partner's details
+      tags:
+        - Partner Contacts
+      parameters:
+        - name: id
+          in: path
+          description: identifier
+          required: true
+          type: string
+        - in: body
+          name: contact
+          description: The partner's contact to be created
+          schema:
+            $ref: '#/definitions/NewContact'
+      responses:
+        '201':
+          description: Created
+          schema:
+            type: object
+            properties:
+              contactId:
+                type: string
+        '400':
+          description: Bad request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '401':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  '/partners/{id}/contacts/{contact_id}':
+    put:
+      summary: >-
+        Update a contact, based on the specified contact identifier, for the
+        specified partner
+      description: Update specified contact of a partner
+      tags:
+        - Partner Contacts
+      parameters:
+        - name: id
+          in: path
+          description: partner identifier
+          required: true
+          type: string
+        - name: contact_id
+          in: path
+          description: contact identifier
+          required: true
+          type: string
+        - in: body
+          name: contact
+          description: The contact to be updated
+          schema:
+            $ref: '#/definitions/NewContact'
+      responses:
+        '204':
+          description: successful operation
+        '400':
+          description: Bad request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '401':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+    delete:
+      summary: >-
+        Delete a contact, based on the contact identifier, for the specified
+        partner
+      description: Delete specified contact of a partner
+      tags:
+        - Partner Contacts
+      parameters:
+        - name: id
+          in: path
+          description: partner identifier
+          required: true
+          type: string
+        - name: contact_id
+          in: path
+          description: contact identifier
+          required: true
+          type: string
+      responses:
+        '204':
+          description: successful operation
+        '400':
+          description: Bad request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '401':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  '/partners/{id}/users':
+    get:
+      summary: 'Get all the users, for the specified partner'
+      description: Get the partner's users details
+      tags:
+        - Partner Users
+      parameters:
+        - name: id
+          in: path
+          description: partner identifier
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Successful response
+          schema:
+            type: object
+            properties:
+              users:
+                type: array
+                items:
+                  $ref: '#/definitions/UserRef'
+        '400':
+          description: Bad request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '401':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+    put:
+      summary: 'Update the users (attach/detach), for the specified partner'
+      description: Update the partner's users details (attach/detach)
+      tags:
+        - Partner Users
+      parameters:
+        - name: id
+          in: path
+          description: partner identifier
+          required: true
+          type: string
+        - in: body
+          name: users
+          description: The Users list to be updated
+          schema:
+            properties:
+              users:
+                type: array
+                items:
+                  $ref: '#/definitions/UserRef'
+      responses:
+        '204':
+          description: successful operation
+        '400':
+          description: Bad request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '401':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  '/partners/{id}/groups':
+    get:
+      summary: 'Get all the groups, to which the specified partner belongs'
+      description: Get the partner's group details
+      tags:
+        - Partner Groups
+      parameters:
+        - name: id
+          in: path
+          description: partner identifier
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Successful response
+          schema:
+            type: object
+            properties:
+              partner-groups:
+                type: array
+                items:
+                  $ref: '#/definitions/Group'
+        '400':
+          description: Bad request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '401':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+    patch:
+      summary: 'Update the group membership, for the specified partner'
+      description: Update the partner's group details (attach/detach)
+      tags:
+        - Partner Groups
+      parameters:
+        - name: id
+          in: path
+          description: partner identifier
+          required: true
+          type: string
+        - in: body
+          name: body
+          schema:
+            $ref: '#/definitions/UpdateOperation'
+      responses:
+        '204':
+          description: successful operation
+        '400':
+          description: Bad request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '401':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  '/partners/{id}/delivery-methods':
+    get:
+      summary: Returns deliveryMethods for a partner.
+      description: Get deliveryMethods set for partner identified by ***id***.
+      tags:
+        - Channels
+      parameters:
+        - name: id
+          description: Identifier of a **Partner**
+          in: path
+          type: string
+          required: true
+      responses:
+        '200':
+          description: All deliveryMethods for the partner with identified by id.
+          schema:
+            type: object
+            properties:
+              deliveryMethods:
+                type: array
+                items:
+                  $ref: '#/definitions/ChannelRef'
+        '400':
+          description: Bad request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '401':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+    put:
+      summary: Set deliveryMethods for a partner
+      description: Add  deliveryMethods for a partner identified by ***id***.
+      tags:
+        - Channels
+      parameters:
+        - name: id
+          description: Identifier of a `Partner`.
+          in: path
+          type: string
+          required: true
+        - in: body
+          name: deliveryMethods
+          description: >-
+            deliveryMethods to be set for this partner and preferredProtocol
+            specifying the id of the deliveryMethod to be set as
+            preferredProtocol
+          schema:
+            properties:
+              deliveryMethods:
+                type: array
+                items:
+                  properties:
+                    id:
+                      type: string
+              preferredProtocol:
+                type: string
+      responses:
+        '204':
+          description: successful operation
+        '400':
+          description: Bad request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '401':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  '/partners/{id}/delivery-queues':
+    get:
+      summary: Returns deliveryQueues for a partner.
+      description: Get deliveryQueues set for partner identified by ***id***.
+      tags:
+        - Queue
+      parameters:
+        - name: id
+          description: Identifier of a **Partner**
+          in: path
+          type: string
+          required: true
+      responses:
+        '200':
+          description: All deliveryQueues for the partner with identified by id.
+          schema:
+            type: object
+            properties:
+              deliveryQueueName:
+                type: string
+
+        '400':
+          description: Bad request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '401':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+    put:
+      summary: Set deliveryQueues for a partner
+      description: Add  deliveryQueues for a partner identified by ***id***.
+      tags:
+        - Queue
+      parameters:
+        - name: id
+          description: Identifier of a `Partner`.
+          in: path
+          type: string
+          required: true
+        - in: body
+          name: deliveryQueueName
+          description: >-
+            deliveryQueues to be set for this partner.
+          schema:
+            properties:
+              deliveryQueueName:
+                type: string
+
+      responses:
+        '204':
+          description: successful operation
+        '400':
+          description: Bad request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '401':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  '/partners/{id}/b2b-gateways':
+    get:
+      summary: Returns b2bGateways for a partner.
+      description: Get b2bGateway set for partner identified by ***id***.
+      tags:
+        - Channels
+      parameters:
+        - name: id
+          description: Identifier of a **Partner**
+          in: path
+          type: string
+          required: true
+      responses:
+        '200':
+          description: All b2bGateways for the partner with identified by id.
+          schema:
+            type: object
+            properties:
+              b2bGateway:
+                type: array
+                items:
+                  $ref: '#/definitions/B2BGatewayRef'
+        '400':
+          description: Bad request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '401':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+    put:
+      summary: Set b2bGateway for a partner
+      description: Add  b2bGateway for a partner identified by ***id***.
+      tags:
+        - Channels
+      parameters:
+        - name: id
+          description: Identifier of a `Partner`.
+          in: path
+          type: string
+          required: true
+        - in: body
+          name: b2bGateway
+          description: >-
+            b2bGateway to be set for this partner and preferredProtocol
+            specifying the id of the b2bGateway to be set as preferredProtocol
+          schema:
+            properties:
+              b2bGateways:
+                type: array
+                items:
+                  properties:
+                    id:
+                      type: string
+      responses:
+        '204':
+          description: successful operation
+        '400':
+          description: Bad request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '401':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  '/partners/{id}/certificates':
+    get:
+      summary: Gets all certificates associated with the partner
+      description: Gets all certificates associated with the partner
+      tags:
+        - Partner Certificates
+      parameters:
+        - name: id
+          description: partnerid
+          in: path
+          type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          schema:
+            type: object
+            title: Certificates
+            properties:
+              partner-certificates:
+                type: array
+                items:
+                  $ref: '#/definitions/GetAllCertificates'
+        '400':
+          description: Bad request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '401':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+    post:
+      summary: Add a new certificate to partnerId id
+      description: Add a new certificate to partnerId id
+      tags:
+        - Partner Certificates
+      parameters:
+        - name: id
+          in: path
+          description: partner identifier
+          required: true
+          type: string
+        - in: body
+          name: certificate
+          description: Certificate details
+          schema:
+            $ref: '#/definitions/Certificate'
+      responses:
+        '201':
+          description: All usages got inserted successfully
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Certificate'
+        '207':
+          description: >
+            - There are multiple status for post for each usage. 
+
+            - If status code is 207, then check for error value of each of the
+            output array to find which usage is causing issue
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Certificate'
+        '400':
+          description: Bad request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '401':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  '/partners/{id}/certificates/{certificateId}':
+    get:
+      summary: Get the specific certificate set of a partner
+      description: Get the specific certificate set of a partner
+      tags:
+        - Partner Certificates
+      parameters:
+        - name: id
+          in: path
+          description: partner identifier
+          required: true
+          type: string
+        - name: certificateId
+          in: path
+          description: certificate identifier
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Successful response
+          schema:
+            $ref: '#/definitions/Certificate'
+        '400':
+          description: Bad request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '401':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+    put:
+      summary: Update certificates to partnerId id
+      description: Update certificates to partnerId id
+      tags:
+        - Partner Certificates
+      parameters:
+        - name: id
+          in: path
+          description: partner identifier
+          required: true
+          type: string
+        - name: certificateId
+          in: path
+          description: certificate identifier
+          required: true
+          type: string
+        - in: body
+          name: certificate
+          description: Certificate details. For new certificate in chain, 'data' and 'extension' fields are mandatory, and for partner existing certificate in chain, 'persistIndex' and 'serialNumber' are mandatory.
+          schema:
+            $ref: '#/definitions/Certificate'
+      responses:
+        '200':
+          description: Ok
+          schema:
+            $ref: '#/definitions/Certificate'
+        '400':
+          description: Bad request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '401':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  '/partners/{id}/certificates/{certificateId}/validateChain':
+    post:
+      summary: Validate Certificate chain
+      description: Validate Certificate chain
+      tags:
+        - Partner Certificates
+      parameters:
+        - in: body
+          name: Certification Chain
+          description: Certificate Chain to be validated over database set. For new certificate in chain, 'data' and 'extension' fields are mandatory, and for partner existing certificate in chain, 'persistIndex' and 'serialNumber' are mandatory.
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/CertificateChain'
+        - name: id
+          in: path
+          description: partner identifier
+          required: true
+          type: string
+        - name: certificateId
+          in: path
+          description: certificate identifier
+          required: true
+          type: string
+      responses:
+        '201':
+          description: Created
+          schema:
+            $ref: '#/definitions/ValidateChainOutput'
+        '400':
+          description: Bad request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '401':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  '/partners/{id}/partner-certificates/details':
+    get:
+      summary: Get the details to be used for creating partner certificates
+      description: Get the details to be used for creating partner certificates
+      tags:
+        - Partner Certificates
+      parameters:
+        - name: id
+          description: partnerid
+          in: path
+          type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          schema:
+            type: object
+            title: Certificates
+            properties:
+              details:
+                type: array
+                items:
+                  $ref: '#/definitions/GetPartnerCertDetails'
+        '400':
+          description: Bad request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '401':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  '/partners/{id}/partner-certificates':
+    post:
+      summary: Generate new partner certificate
+      description: Generate new partner certificate
+      tags:
+        - Partner Certificates
+      parameters:
+        - name: id
+          description: partnerid
+          in: path
+          type: string
+          required: true
+        - name: certType
+          description: desired certificate format
+          type: string
+          required: true
+          in: query
+          enum:
+            - jks
+            - p12
+            - pfx
+        - in: body
+          name: Certificate info
+          description: Details to be used for generation of partner certificate.
+          schema:
+            type: object
+            properties:
+              commonName:
+                type: string
+                description: Server name or host name, for example, www.softwareag.com
+              organizationName:
+                type: string
+                description: Partner name. If you are not passing this field value or sending empty value, application will use it directly from the profile
+              organizationUnit:
+                type: string
+                description: Organization Unit
+              localityName:
+                type: string
+                description: City or locality
+              state:
+                type: string
+                description: State or Province name
+              country:
+                type: string
+                description: Country name
+              email:
+                type: string
+                description: EMail id
+      responses:
+        '200':
+          description: Output cert file in requested format containing private and public keys
+          schema:
+            type: file
+        '400':
+          description: Bad request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '401':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  '/partners/{id}/partner-certificates/{certificateId}/download':
+    post:
+      summary: Download already existing 2-wayssl usage certificate
+      description: Download already existing 2-wayssl usage certificate
+      tags:
+        - Partner Certificates
+      parameters:
+        - name: id
+          description: partnerid
+          in: path
+          type: string
+          required: true
+        - name: certificateId
+          description: certificateid
+          type: string
+          required: true
+          in: path
+      responses:
+        '200':
+          description: Output .crt file having public key
+          schema:
+            type: file
+        '400':
+          description: Bad request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '401':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  '/partners/{id}/field-groups':
+    get:
+      summary: 'Get all the field Groups defined, for the specified partner'
+      description: Get the partner's field Groups list
+      tags:
+        - Partner extended field groups
+      parameters:
+        - name: id
+          in: path
+          description: partner identifier
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Successful response
+          schema:
+            type: object
+            properties:
+              fieldGroups:
+                $ref: '#/definitions/Groups'
+        '400':
+          description: Bad request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '401':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+    patch:
+      summary: Update extended field group values for the specified partner
+      description: Update extended field group values for the specified partner
+      tags:
+        - Partner extended field groups
+      parameters:
+        - name: id
+          in: path
+          description: partner identifier
+          required: true
+          type: string
+        - in: body
+          name: fieldGroups
+          description: The fieldGroups to be updated
+          schema:
+            $ref: '#/definitions/Groups'
+      responses:
+        '204':
+          description: Updated
+        '207':
+          description: Multi-Status success
+          schema:
+            type: object
+            properties:
+              field-groups:
+                $ref: '#/definitions/GroupsPatch'
+        '400':
+          description: Bad request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '401':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  '/partners/{id}/control-numbers':
+    get:
+      summary: Get all the defined control numbers for a specific partner id
+      description: Gets all Control numbers of the particular partner id
+      parameters:
+        - name: id
+          in: path
+          description: Partner identifier
+          required: true
+          type: string
+        - name: pageSize
+          in: query
+          description: Page size
+          required: false
+          type: integer
+          format: int32
+        - name: pageNumber
+          in: query
+          description: Page Number
+          required: false
+          type: integer
+          format: int32
+        - name: queryId
+          in: query
+          description: Query identifier
+          required: false
+          type: string
+        - name: limit
+          in: query
+          description: Limit the number of records
+          required: false
+          type: integer
+          format: int32
+        - name: q
+          in: query
+          description: |
+            Query will be supported on:
+            - Internal ID
+            - Sender's corporation name and Organization unit name. 
+            - Receiver's corporation name and Organization unit name.
+          required: false
+          type: string
+        - name: sort
+          in: query
+          description: Sort will be based on all the fields
+          required: false
+          type: string
+          default: Sender's corporation name and organization unit name
+      tags:
+        - Partner Control number
+      responses:
+        '200':
+          description: Successful response
+          schema:
+            title: Control Numbers
+            properties:
+              totalCount:
+                type: integer
+              totalPages:
+                type: integer
+              pageSize:
+                type: integer
+              pageNumber:
+                type: integer
+              links:
+                type: array
+                items:
+                  $ref: '#/definitions/Link'
+              control-numbers:
+                type: array
+                items:
+                  $ref: '#/definitions/ControlNumbersBasic'
+        '400':
+          description: Bad request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '401':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  '/partners/{id}/control-numbers/overview':
+    get:
+      summary: Get the overviews of the control numbers associated to the specified partner
+      description: This is to get the overviews of the control numbers associated to the specified partner using partner id
+      tags:
+        - Partner Control number
+      parameters:
+        - name: id
+          in: path
+          description: Partner identifier
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Successful response
+          schema:
+            type: object
+            properties:
+              controlNumberCount:
+                type: object
+                properties:
+                  asSender:
+                    type: integer
+                  asReceiver:
+                    type: integer
+        '400':
+          description: Bad request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '401':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+
+  '/partners/{id}/settings':
+    get:
+      summary: Returns all settings for a partner.
+      description: Get settings set for partner identified by ***id***.
+      tags:
+        - Partner Settings
+      parameters:
+        - name: id
+          description: Identifier of a **Partner**
+          in: path
+          type: string
+          required: true
+      responses:
+        '200':
+          description: All settings for the partner identified by id
+          schema:
+            type: object
+            properties:
+              settings:
+                type: array
+                items:
+                  $ref: '#/definitions/PartnerSetting'
+        '400':
+          description: Bad request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '403':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+
+  '/partners/{id}/settings/{type}':
+    get:
+      summary: Returns specific settings for a partner.
+      description: Get settings set for partner identified by ***id*** and ***type***.
+      tags:
+        - Partner Settings
+      parameters:
+        - name: id
+          description: Identifier of a **Partner**
+          in: path
+          type: string
+          required: true
+        - name: type
+          in: path
+          description: settings type identifier like delivery,etc
+          required: true
+          type: string
+          enum:
+            - delivery
+      responses:
+        '200':
+          description: Specific partner settings for the partner identified by id & type.Response will differ based on value of path variable 'type'.Here 'DeliverySetting' is shown in the response as type is 'delivery'
+          schema:
+            $ref: '#/definitions/DeliverySetting'
+        '400':
+          description: Bad request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '403':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+    put:
+      summary: Set specific settings for a partner
+      description: Set specific settings for a partner identified by ***id*** & ***type***.
+      tags:
+        - Partner Settings
+      parameters:
+        - name: id
+          description: Identifier of a `Partner`.
+          in: path
+          type: string
+          required: true
+        - name: type
+          in: path
+          description: settings type identifier
+          required: true
+          type: string
+          enum:
+            - delivery
+        - in: body
+          required: true
+          name: setting
+          description: >-
+            spcific settings to be set for this partner.It will depend on the value of path variable 'type'
+          schema:
+            $ref: '#/definitions/DeliverySetting'
+      responses:
+        '204':
+          description: successful operation
+        '400':
+          description: Bad request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '403':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /partners/control-numbers:
+    get:
+      summary: Get all the defined control numbers
+      description: Gets all Control Numbers objects.
+      tags:
+        - Partner Control number
+      parameters:
+        - name: pageSize
+          in: query
+          description: Page size
+          required: false
+          type: integer
+          format: int32
+        - name: pageNumber
+          in: query
+          description: Page Number
+          required: false
+          type: integer
+          format: int32
+        - name: queryId
+          in: query
+          description: Query identifier
+          required: false
+          type: string
+        - name: limit
+          in: query
+          description: Limit the number of records
+          required: false
+          type: integer
+          format: int32
+        - name: q
+          in: query
+          description: |
+            Query will be supported on:
+            - Internal ID
+            - Sender's corporation name and Organization unit name. 
+            - Receiver's corporation name and Organization unit name.
+          required: false
+          type: string
+        - name: sort
+          in: query
+          description: Sort will be based on all the fields
+          required: false
+          type: string
+          default: Sender's corporation name and organization unit name
+        - name: context
+          in: query
+          description: Queries the control number based on the context. If the context is 'transaction', the API queries the control number definition used for transactions
+          required: false
+          type: string
+
+
+      responses:
+        '200':
+          description: Successful response
+          schema:
+            title: Control Numbers
+            properties:
+              totalCount:
+                type: integer
+              totalPages:
+                type: integer
+              pageSize:
+                type: integer
+              pageNumber:
+                type: integer
+              links:
+                type: array
+                items:
+                  $ref: '#/definitions/Link'
+              control-numbers:
+                type: array
+                items:
+                  $ref: '#/definitions/ControlNumbersBasic'
+        '400':
+          description: Bad request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '401':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+    post:
+      summary: Create a new control number
+      description: To create a control number
+      tags:
+        - Partner Control number
+      parameters:
+        - in: body
+          name: Control number
+          description: The control number to be created
+          schema:
+            $ref: '#/definitions/ControlNumbersBasic'
+      responses:
+        '201':
+          description: Created
+          schema:
+            title: ControlNumberID
+            properties:
+              id:
+                type: string
+            required:
+              - id
+        '400':
+          description: Bad request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '401':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /partners/control-numbers/{controlNumber_id}:
+    get:
+      summary: Get a specific control number definition, based on controlNumber_id
+      description: Returns details for the specified control number
+      tags:
+        - Partner Control number
+      parameters:
+        - name: controlNumber_id
+          in: path
+          description: Control number identifier
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Successful response
+          schema:
+            $ref: '#/definitions/ControlNumbersBasic'
+        '400':
+          description: Bad request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '401':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+    put:
+      summary: 'Update an existing control number, based on controlNumber_id'
+      description: Update an existing control number
+      tags:
+        - Partner Control number
+      parameters:
+        - name: controlNumber_id
+          in: path
+          description: Control number identifier
+          required: true
+          type: string
+        - in: body
+          name: controlNumber
+          description: Control Number that needs to be modified for a specified partner
+          schema:
+            $ref: '#/definitions/ControlNumberSetting'
+      responses:
+        '200':
+          description: successful operation
+        '400':
+          description: Bad request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '401':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+    delete:
+      summary: Deletes a specific control number definition, based on controlNumber_id
+      description: Delete the specified control number
+      tags:
+        - Partner Control number
+      parameters:
+        - name: controlNumber_id
+          in: path
+          description: Control number identifier that needs to be deleted
+          required: true
+          type: string
+      responses:
+        '204':
+          description: successful operation
+        '400':
+          description: Bad request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '401':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /contacttypes:
+    get:
+      summary: Get one or more Contact types
+      description: Get the list of Contact types defined in B2B system
+      produces:
+        - application/json
+      tags:
+        - Contact Types
+      responses:
+        '200':
+          description: Successful response
+          schema:
+            title: contactTypes
+            properties:
+              contactTypes:
+                type: array
+                items:
+                  properties:
+                    id:
+                      type: string
+                    name:
+                      type: string
+        '400':
+          description: Bad request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '401':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /idtypes:
+    get:
+      summary: Get one or more ID types
+      description: Get the list of ID types defined in B2B system
+      produces:
+        - application/json
+      tags:
+        - ID Types
+      responses:
+        '200':
+          description: Successful response
+          schema:
+            title: idTypes
+            properties:
+              idTypes:
+                type: array
+                items:
+                  properties:
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    system:
+                      type: string
+                    codes:
+                      type: array
+                      items:
+                        type: string
+        '400':
+          description: Bad request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '401':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+    post:
+      summary: Create a new ID type (custom) in B2B system
+      description: Add a new ID Type (custom) in B2B system
+      tags:
+        - Custom ID Types
+      parameters:
+        - in: body
+          name: idTypes
+          description: New ID Type data
+          required: true
+          schema:
+            $ref: '#/definitions/NewIDType'
+      responses:
+        '201':
+          description: Created
+          schema:
+            $ref: '#/definitions/NewIDType'
+        '400':
+          description: Bad request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '401':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+
+  /idtypes/custom:
+    get:
+      summary: Get one or more custom ID types
+      description: Get the list of custom ID types defined in B2B system
+      produces:
+        - application/json
+      tags:
+        - Custom ID Types
+      responses:
+        '200':
+          description: Successful response
+          schema:
+            title: idTypes
+            properties:
+              idTypes:
+                type: array
+                items:
+                  properties:
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    codes:
+                      type: array
+                      items:
+                        type: string
+        '400':
+          description: Bad request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '401':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+
+  /idtypes/custom/{id}:
+    delete:
+      summary: Deletes the specified custom ID Type
+      description: Delete the specified custom ID Type
+      tags:
+        - Custom ID Types
+      parameters:
+        - name: id
+          description: ID type internal id
+          in: path
+          type: integer
+          required: true
+      responses:
+        '204':
+          description: successful operation
+        '400':
+          description: Bad request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '401':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+
+  /idtypes/custom/{id}/partners:
+    get:
+      summary: Retrieves associated partners for the specified ID type
+      description: Retrieves all associated partners for the specified ID type
+      tags:
+        - Custom ID Types
+      parameters:
+        - name: id
+          description: Internal id of the ID type
+          in: path
+          type: integer
+          required: true
+      responses:
+        '200':
+          description: successful operation
+        '400':
+          description: Bad request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '401':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /field-groups:
+    get:
+      summary: Get one or more extended field groups
+      description: Get the list of field groups defined in B2B system
+      produces:
+        - application/json
+      tags:
+        - Extended fields
+      parameters:
+        - in: query
+          name: q
+          required: false
+          type: string
+          description: Get filtered list of groups and fields
+      responses:
+        '200':
+          description: Successful response
+          schema:
+            title: groups
+            properties:
+              groups:
+                type: array
+                items:
+                  $ref: '#/definitions/BasicGroupDefinition'
+        '400':
+          description: Bad request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '401':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+    post:
+      summary: Create a new Group in B2B system
+      description: Add a new Group in B2B system
+      tags:
+        - Extended fields
+      parameters:
+        - in: body
+          name: groupDefinition
+          description: Group definition
+          required: true
+          schema:
+            $ref: '#/definitions/BasicGroupDefinition'
+      responses:
+        '201':
+          description: Created
+          schema:
+            $ref: '#/definitions/BasicGroupDefinition'
+        '400':
+          description: Bad request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '401':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /field-groups/{group_id}:
+    put:
+      summary: Update specified group
+      description: Update specified group
+      tags:
+        - Extended fields
+      parameters:
+        - name: group_id
+          in: path
+          description: group identifier
+          required: true
+          type: string
+        - in: body
+          name: groupDefinition
+          description: Group definition
+          required: true
+          schema:
+            $ref: '#/definitions/BasicGroupDefinition'
+      responses:
+        '204':
+          description: Updated successfully
+        '400':
+          description: Bad request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '401':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+    delete: # FUTURE
+      summary: Delete specified group (inclusive of all field groups)
+      description: Delete specified group
+      produces:
+        - application/json
+      tags:
+        - Extended fields
+      parameters:
+        - name: group_id
+          in: path
+          description: group identifier
+          required: true
+          type: string
+      responses:
+        '204':
+          description: successful operation
+        '400':
+          description: Bad request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '401':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /field-groups/{group_id}/fields:
+    get:
+      summary: Get one or more extended fields for specified group
+      description: Get the list of fields defined in B2B system
+      produces:
+        - application/json
+      tags:
+        - Extended fields
+      parameters:
+        - name: group_id
+          in: path
+          description: group identifier
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Successful response
+          schema:
+            title: fields
+            properties:
+              fields:
+                type: array
+                items:
+                  $ref: '#/definitions/FieldDefinition'
+        '400':
+          description: Bad request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '401':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+    post:
+      summary: Create a new field within specified Group in B2B system
+      description: Add a new field within specified Group in B2B system
+      tags:
+        - Extended fields
+      parameters:
+        - name: group_id
+          in: path
+          description: group identifier
+          required: true
+          type: string
+        - in: body
+          name: fieldDefinition
+          description: field definition
+          required: true
+          schema:
+            $ref: '#/definitions/FieldDefinition'
+      responses:
+        '201':
+          description: Created
+          schema:
+            $ref: '#/definitions/FieldDefinition'
+        '400':
+          description: Bad request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '401':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /field-groups/{group_id}/fields/{field_id}:
+    get:
+      summary: Get specified extended field details for specified group
+      description: Get the details of specified field defined in B2B system
+      produces:
+        - application/json
+      tags:
+        - Extended fields
+      parameters:
+        - name: group_id
+          in: path
+          description: group identifier
+          required: true
+          type: string
+        - name: field_id
+          in: path
+          description: field identifier
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Successful response
+          schema:
+            $ref: '#/definitions/FieldDefinition'
+        '400':
+          description: Bad request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '401':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+    put:
+      summary: Update field within specified Group in B2B system
+      description: Update field within specified Group in B2B system
+      tags:
+        - Extended fields
+      parameters:
+        - name: group_id
+          in: path
+          description: group identifier
+          required: true
+          type: string
+        - name: field_id
+          in: path
+          description: field identifier
+          required: true
+          type: string
+        - in: body
+          name: fieldDefinition
+          description: field definition
+          required: true
+          schema:
+            $ref: '#/definitions/FieldDefinition'
+      responses:
+        '204':
+          description: Updated
+          schema:
+            $ref: '#/definitions/FieldDefinition'
+        '400':
+          description: Bad request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '401':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+    delete: # FUTURE
+      summary: Delete specified field from specified group
+      description: Delete specified field from specified group
+      produces:
+        - application/json
+      tags:
+        - Extended fields
+      parameters:
+        - name: group_id
+          in: path
+          description: group identifier
+          required: true
+          type: string
+        - name: field_id
+          in: path
+          description: field identifier
+          required: true
+          type: string
+      responses:
+        '204':
+          description: successful operation
+        '400':
+          description: Bad request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '401':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+definitions:
+  FieldDefinition:
+    type: object
+    properties:
+      id:
+        type: string
+        readOnly: true
+      name:
+        type: string
+      description:
+        type: string
+        description: Field description
+      type:
+        type: string
+        description: Field data-type
+        enum:
+          - string
+          - binary
+      status:
+        type: string
+        enum:
+          - Active
+          - Inactive
+      required:
+        type: boolean
+        default: false
+        description: A flag to mark the field as required or optional
+      maxLength:
+        type: integer
+        description: defines maximum length for field value. defualt to -1 means not defined.
+        minimum: -1
+      defaultValue:
+        type: string
+        description: 'Optionally, specify a default value for the field'
+      allowedValues:
+        type: array
+        description: List of all the allowed values
+        items:
+          type: string
+          pattern: '[a-zA-Z0-9.-_]*' #[TODO]
+    required:
+      - name
+      - type
+      - status
+  BasicGroupDefinition:
+    type: object
+    properties:
+      id:
+        type: string
+        readOnly: true
+      name:
+        type: string
+      requiredFieldCount:
+        type: number
+        readOnly: true
+      activeFieldCount:
+        type: number
+        readOnly: true
+      fieldCount:
+        type: number
+        readOnly: true
+      relatedFields:
+        description: 'This is optional property and will be populated in response only while searching group or fields'
+        type: array
+        items:
+          $ref: '#/definitions/FieldDefinition'
+    required:
+      [id
+        name
+        requiredFieldCount
+        activeFieldCount
+        fieldCount]
+  CreatedEntity:
+    type: object
+    properties:
+      internalId:
+        type: string
+  Link:
+    type: object
+    properties:
+      href:
+        type: string
+      method:
+        type: string
+      rel:
+        type: string
+  Corporation:
+    type: object
+    properties:
+      corporationName:
+        type: string
+      orgUnitName:
+        type: string
+      status:
+        type: string
+        enum:
+          - Active
+          - Inactive
+    required:
+      - corporationName
+      - status
+  GetAllCorporation:
+    type: object
+    properties:
+      corporationName:
+        type: string
+      orgUnitName:
+        type: string
+      status:
+        type: string
+        enum:
+          - Active
+          - Inactive
+      isEnterprise:
+        type: boolean
+    required:
+      - corporationName
+      - status
+  Identity:
+    type: object
+    properties:
+      externalId:
+        type: string
+      externalIdType:
+        type: string
+      externalIdValue:
+        type: string
+  NewIdentity:
+    type: object
+    properties:
+      externalIdType:
+        type: string
+      externalIdValue:
+        type: string
+  ExpContact:
+    type: object
+    properties:
+      contactId:
+        type: string
+      givenName:
+        type: string
+      surname:
+        type: string
+      type:
+        type: string
+      email:
+        type: string
+      telephone:
+        type: string
+      telExt:
+        type: string
+      faxNumber:
+        type: string
+  Address:
+    type: object
+    properties:
+      addressId:
+        type: string
+      addressLine1:
+        type: string
+      addressLine2:
+        type: string
+      addressLine3:
+        type: string
+      city:
+        type: string
+      stateProvince:
+        type: string
+      addressType:
+        type: string
+      zipCode:
+        type: string
+      country:
+        type: string
+  NewAddress:
+    type: object
+    properties:
+      addressLine1:
+        type: string
+      addressLine2:
+        type: string
+      addressLine3:
+        type: string
+      city:
+        type: string
+      stateProvince:
+        type: string
+      addressType:
+        type: string
+      zipCode:
+        type: string
+      country:
+        type: string
+  Contact:
+    type: object
+    properties:
+      contactId:
+        type: string
+      givenName:
+        type: string
+      surname:
+        type: string
+      type:
+        type: string
+      roleDescr:
+        type: string
+      email:
+        type: string
+      telephone:
+        type: string
+      telExt:
+        type: string
+      faxNumber:
+        type: string
+      address:
+        $ref: '#/definitions/NewAddress'
+  NewContact:
+    type: object
+    properties:
+      givenName:
+        type: string
+      surname:
+        type: string
+      type:
+        type: string
+      roleDescr:
+        type: string
+      email:
+        type: string
+      telephone:
+        type: string
+      telExt:
+        type: string
+      faxNumber:
+        type: string
+      address:
+        $ref: '#/definitions/NewAddress'
+  User:
+    type: object
+    properties:
+      id:
+        type: string
+      username:
+        type: string
+  UserDetails:
+    type: object
+    properties:
+      id:
+        type: string
+        readOnly: true
+      username:
+        type: string
+      name:
+        type: string
+      status:
+        type: string
+        enum:
+          - Active
+          - Inactive
+      createdOn:
+        type: string
+        description: 'https://swagger.io/docs/specification/data-models/data-types/'
+        example: '1995-09-07T10:40:52Z'
+        format: date-time
+      createdBy:
+        type: string
+        description: 'https://swagger.io/docs/specification/data-models/data-types/'
+        example: '1995-09-07T10:40:52Z'
+        format: date-time
+      lastLogin:
+        type: string
+        description: 'https://swagger.io/docs/specification/data-models/data-types/'
+        example: '1995-09-07T10:40:52Z'
+        format: date-time
+      basicInfo:
+        $ref: '#/definitions/UserBasicDetails'
+      locale:
+        $ref: '#/definitions/LocaleInfo'
+      contact:
+        $ref: '#/definitions/UserContact'
+  UserBasicDetails:
+    type: object
+    properties:
+      firstName:
+        type: string
+      lastName:
+        type: string
+      title:
+        type: string
+      accessProfile:
+        type: string
+      email:
+        type: string
+  UserContact:
+    type: object
+    properties:
+      phone:
+        type: string
+      mobile:
+        type: string
+      fax:
+        type: string
+      street:
+        type: string
+      city:
+        type: string
+      state:
+        type: string
+      postalCode:
+        type: string
+      country:
+        type: string
+  LocaleInfo:
+    type: object
+    properties:
+      timezone:
+        type: string
+      dateFormat:
+        type: string
+      timeFormat:
+        type: string
+      locale:
+        type: string
+  Group:
+    type: object
+    properties:
+      groupId:
+        type: string
+      name:
+        type: string
+      description:
+        type: string
+  NewPartner:
+    type: object
+    properties:
+      corporation:
+        $ref: '#/definitions/Corporation'
+      identities:
+        type: array
+        items:
+          $ref: '#/definitions/NewIdentity'
+      copyProfileId:
+        type: string
+    required:
+      - corporation
+      - identities
+  PartnerBasic:
+    type: object
+    properties:
+      internalId:
+        type: string
+        description: internal partner identifier
+      corporation:
+        $ref: '#/definitions/GetAllCorporation'
+      identities:
+        type: array
+        items:
+          $ref: '#/definitions/Identity'
+      contacts:
+        type: array
+        items:
+          $ref: '#/definitions/ExpContact'
+        description: contacts will be available in response if expand query paramer value is contact
+      partnerGroups:
+        type: array
+        items:
+          type: string
+  ErrorResponse:
+    type: object
+    properties:
+      error:
+        $ref: '#/definitions/Message'
+  Message:
+    type: object
+    properties:
+      code:
+        type: string
+      message:
+        type: string
+      details:
+        type: string
+    required:
+      - code
+      - message
+  NewIDType:
+    type: object
+    properties:
+      name:
+        type: string
+      codes:
+        type: array
+        items:
+          type: string
+        required:
+          - name
+
+  ChannelBasic:
+    type: object
+    properties:
+      name:
+        type: string
+      link:
+        $ref: '#/definitions/Link'
+  UserRef:
+    type: object
+    properties:
+      id:
+        type: string
+      username:
+        type: string
+  ChannelRef:
+    type: object
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      scheme:
+        type: string
+      status:
+        type: string
+        enum:
+          - Active
+          - Inactive
+      preferredProtocol:
+        type: boolean
+  B2BGatewayRef:
+    type: object
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      scheme:
+        type: string
+      status:
+        type: string
+        enum:
+          - Active
+          - Inactive
+      partnerSpecific:
+        type: string
+        enum:
+          - "true"
+          - "false"
+  GetPartnerCertDetails:
+    type: object
+    properties:
+      fieldLabel:
+        type: string
+        description: label to be used on UI
+      fieldName:
+        type: string
+        description: Name of the of the field
+      fieldValue:
+        type: string
+        description: Value from the profile
+      editable:
+        type: boolean
+        description: Signify whether the field is editable
+      mandatory:
+        type: boolean
+        description: Signify whether the field is mandatory
+  GetAllCertificates:
+    type: object
+    properties:
+      partnerId:
+        type: string
+        description: >
+          - internalId of the owner's partner to whom the certificate is
+          associated - To associate certificate for all partners mark it as
+          default
+        default: default
+      partnerName:
+        type: string
+        description: Name of the partner
+      sign-verify:
+        type: array
+        items:
+          $ref: '#/definitions/Certificate'
+      encrypt-decrypt:
+        type: array
+        items:
+          $ref: '#/definitions/Certificate'
+      ssl:
+        type: array
+        items:
+          $ref: '#/definitions/Certificate'
+  Certificate:
+    type: object
+    properties:
+      id:
+        type: string
+        description: internal id of certificate
+        readOnly: true
+      expirationDate:
+        type: number
+        description: Expiration date of certificate set in  millis
+        readOnly: true
+      formattedExpirationDate:
+        type: string
+        description: Expiration date of certificate set in  string
+        example: 'Jan 25, 2019, 02:15:35 PM'
+        readOnly: true
+      partnerId:
+        type: string
+        description: |
+          - internalId of the owner's partner to whom the certificate is
+          associated
+          - To associate certificate for all partners mark it as default
+        default: default
+      partnerName:
+        type: string
+        description: |
+          - name of the partner
+          - It will be pulled based on partnerId sibling
+      usage:
+        type: array
+        description: >
+          - To apply same set of certificate to multiple usages, pass them in
+          this
+
+          array during post operation
+
+          - During get operation, size of this array will always be one
+
+          - During put operation, ignore the value of usage, since usage can be
+          pulled based on 
+            certificateId passed in input
+        items:
+          type: string
+        enum:
+          - sign-verify
+          - encrypt-decrypt
+          - ssl
+        default: sign-verify
+      primary:
+        type: boolean
+        description: tells whether the certificate set is primary for the partner
+        default: true
+        readOnly: true
+        enum:
+          - true
+          - false
+
+      chain:
+        type: array
+        description: |
+          - List of public certificates
+          - Ordered collection of certificates
+          - 0th index belongs to partner
+          - last one to root
+          - middle ones are intermediate certificates
+          - Certificate chain contains list of certificate from root to partner
+          - During Post
+            - All entry objects in chain array will contain only data populated with Base64 encoded string with source charset as UTF8
+          - During Put
+            - If an new certificate is added to existing set, append it after the last index of certificate chain array
+            - If any existing certificate is deleted say at index (k), then nullify the value at the index (k)
+            - If any existing certificate needs to be retained, then make sure certificateChain object holds minimally correct 'serialNumber'
+        items:
+          $ref: '#/definitions/CertificateChain'
+      privatekey:
+        $ref: '#/definitions/PrivateKey'
+      error:
+        $ref: '#/definitions/Message'
+  PrivateKey:
+    type: object
+    description: Private Key Object
+    properties:
+      data:
+        type: string
+        description: |
+          - Private Key Object
+          - Private Key data
+          - During Put operation, if it is deleted based on available property
+          value, this should be passed as null
+          - On Post/ Put when new certificate is set, this data property value
+          will be populated with Base64 encodes value with source charset as
+          UTF8
+      available:
+        type: boolean
+        description: |
+          - tells whether the private key is set
+          - Allowed Values
+            - true - Private Key already exists for this usage
+            - false - Private Key does not exist for this usage
+        readOnly: true
+        default: false
+  CertificateChain:
+    type: object
+    required:
+      - data
+      - extension
+    properties:
+      data:
+        type: string
+        description: Certificate data encoded in Base64 with source charset as UTF8
+      expirationDate:
+        type: number
+        description: Expiration date of certificate set in  millis
+        readOnly: true
+      formattedExpirationDate:
+        type: string
+        description: Expiration date of certificate set in  string
+        example: 'Jan 25, 2019, 02:15:35 PM'
+        readOnly: true
+      serialNumber:
+        type: string
+        description: Serial Number of certificate
+        readOnly: true
+      extension:
+        type: string
+        description: 'Type of certificate type, basically extension of certificate'
+        enum:
+          - cer
+          - der
+          - p7b
+      persistIndex:
+        type: integer
+        description: >
+          - index of this chain entry in original list of database
+
+          - if this is a new certificate going to get added, value of it will
+          always be -1
+        minimum: -1
+        readOnly: true
+      issuerDN:
+        type: object
+        readOnly: true
+        additionalProperties:
+          type: string
+        description: >
+          - Below are the list of standard keys and its abbreviations
+            - CN: Common Name
+            - OU: Organizational Unit
+            - O: Organization
+            - L: Locality
+            - S: State Or Province Name
+            - ST: State Or Province Name
+            - C: CountryName
+            - Street: Street
+            - DC: Domain Component
+            - E: Email
+            - G: Given Name
+            - I: Initials
+            - SN: Surname
+            - T: Title
+          - If any of these keys are present, they should be replaced with its
+          abbreviation
+
+          - For others just go with the key as it is
+      subject:
+        type: object
+        readOnly: true
+        description: >
+          - Below are the list of standard keys and its abbreviations
+            - CN: Common Name
+            - OU: Organizational Unit
+            - O: Organization
+            - L: Locality
+            - S: State Or Province Name
+            - ST: State Or Province Name
+            - C: CountryName
+            - Street: Street
+            - DC: Domain Component
+            - E: Email
+            - G: Given Name
+            - I: Initials
+            - SN: Surname
+            - T: Title
+          - If any of these keys are present, they should be replaced with its
+          abbreviation
+
+          - For others just go with the key as it is
+        additionalProperties:
+          type: string
+  ValidateKeyOutput:
+    type: object
+    properties:
+      valid:
+        type: boolean
+        description: Tells whether the private key is valid or not
+  ValidateChainOutput:
+    type: object
+    properties:
+      chain:
+        type: array
+        items:
+          $ref: '#/definitions/CertificateChain'
+      valid:
+        type: boolean
+        description: Validity of Certificates
+        readOnly: true
+      warnings:
+        type: array
+        items:
+          $ref: '#/definitions/Message'
+        readOnly: true
+      errors:
+        type: array
+        items:
+          $ref: '#/definitions/Message'
+        readOnly: true
+  ProfileFieldGroups:
+    type: object
+    properties:
+      id:
+        type: string
+        description: Unique internal id of the partner
+      groups:
+        $ref: '#/definitions/Groups'
+  Groups:
+    type: array
+    items:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Group id
+        fields:
+          type: array
+          description: A collection of field values
+          items:
+            $ref: '#/definitions/Fields'
+  Fields:
+    type: object
+    properties:
+      id:
+        type: string
+      value:
+        type: string
+  GroupsPatch:
+    type: array
+    items:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Group id
+        fields:
+          type: array
+          description: A collection of field values
+          items:
+            $ref: '#/definitions/FieldsPatch'
+  FieldsPatch:
+    type: object
+    properties:
+      id:
+        type: string
+      warning:
+        type: string
+        readOnly: true
+  ControlNumbersBasic:
+    type: object
+    properties:
+      id:
+        type: string
+        readOnly: true
+        description: internal id of the control number
+      sender:
+        $ref: '#/definitions/ControlNumberCorporation'
+      receiver:
+        $ref: '#/definitions/ControlNumberCorporation'
+      mode:
+        type: string
+        description: describes whether the mode is production or test or custom
+        enum:
+          - Production
+          - Test
+          - Custom
+      standard:
+        type: string
+        description: describes the standard of the document
+        enum:
+          - EANCOM
+          - ODETTE
+          - TRADACOMS
+          - UCS
+          - UNEDIFACT
+          - VDA
+          - VICS
+          - X12
+      version:
+        type: string
+        description: describes the version of the document
+      groupType:
+        type: string
+        description: describes the group of the document, whether it is All, Envelop or Custom if it is custom then the name of the group must be sent in groupType
+      settings:
+        $ref: '#/definitions/ControlNumberSetting'
+    required:
+      - mode
+      - standard
+      - settings
+  ControlNumberSetting:
+    type: object
+    properties:
+      window:
+        type: integer
+        description: A number that indicates a range of numbers that is used to determine whether it is duplicate or out-of-sequence
+        default: 100
+      next:
+        type: integer
+        description: The next control number that you expect for the interchange or group (or transmission or batch) to use
+        default: 1
+      increment:
+        type: integer
+        description: The value that webMethods.i B2B uses to increment the control number to determine the next expected control number
+        default: 1
+      min:
+        type: integer
+        description: The lowest number that the control number can be
+        default: 1
+      max:
+        type: integer
+        description: The highest number that the control number can be
+        default: 999999
+    required:
+      - window
+      - next
+      - increment
+      - min
+      - max
+  ControlNumberCorporation:
+    type: object
+    properties:
+      internalId:
+        type: string
+      corporationName:
+        type: string
+        readOnly: true
+      orgUnitName:
+        type: string
+        readOnly: true
+      deleted:
+        type: boolean
+        readOnly: true
+      enterprise:
+        type: boolean
+        readOnly: true
+    required:
+      - internalId
+
+  PartnerSetting:
+    type: object
+    properties:
+      type:
+        type: string
+        description: Specific partner setting type description
+        enum:
+          - delivery
+        readOnly: true
+      description:
+        type: string
+        description: Specific partner setting type description
+        readOnly: true
+
+  DeliverySetting:
+    type: object
+    properties:
+      maximumRetries:
+        type: integer
+        description: Number of times to try to redeliver a document to the partner/re-execute an integration in reliable mode.
+      wait:
+        type: integer
+        description: For immediate delivery, the number of milliseconds to wait before trying to redeliver the document the first time/re-execute an integration in reliable mode.
+      retryFactor:
+        type: integer
+        description: For immediate delivery, the factor to use when determining how long to wait before making subsequent attempts to redeliver the document/re-execute an integration in reliable mode.
+        default: 1
+    allOf:
+      - $ref: '#/definitions/PartnerSetting'
+
+  UpdateOperation:
+    type: object
+    properties:
+      operations:
+        type: array
+        items:
+          type: object
+          properties:
+            OP:
+              type: string
+              enum: ["ADD", "REMOVE"] 
+            partnerGroupIDs:
+              type: array
+              items:
+                type: string
+  

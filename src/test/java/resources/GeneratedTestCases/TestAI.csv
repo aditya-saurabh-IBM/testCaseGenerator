@@ -1,0 +1,209 @@
+"HTTP Method","Test Case","Payload","Expected Result"
+"GET","GET /external/van/identities - happy path - /external/van/identities","{ }","200"
+"POST","POST /external/van/identities - happy path - /external/van/identities","[ {
+  ""type"" : ""1"",
+  ""value"" : ""12345""
+}, {
+  ""type"" : ""1"",
+  ""value"" : ""12345""
+} ]","200"
+"POST","POST /external/van/identities - edge case - /external/van/identities","[ ]","200"
+"POST","POST /external/van/identities - negative case - /external/van/identities","[ {
+  ""type"" : ""1"",
+  ""value"" : ""12345""
+}, {
+  ""type"" : ""1"",
+  ""value"" : ""12345""
+}, {
+  ""type"" : ""1"",
+  ""value"" : ""12345""
+}, {
+  ""type"" : ""1"",
+  ""value"" : ""12345""
+}, {
+  ""type"" : ""1"",
+  ""value"" : ""12345""
+} ]","400"
+"","","{ }",""
+"DELETE","DELETE /external/van/identity/type/{type}/value/{value} - happy path - /external/van/identity/type/sample/value/sample","{ }","200"
+"DELETE","DELETE /external/van/identity/type/{type}/value/{value} - edge case - /external/van/identity/type//value/sample","{ }","200"
+"DELETE","DELETE /external/van/identity/type/{type}/value/{value} - edge case - /external/van/identity/type/sample/value/","{ }","200"
+"DELETE","DELETE /external/van/identity/type/{type}/value/{value} - negative case - /external/van/identity/type/{type}/value/sample","{ }","400"
+"DELETE","DELETE /external/van/identity/type/{type}/value/{value} - negative case - /external/van/identity/type/sample/value/{value}","{ }","400"
+"DELETE","/external/van/identity/type/{type}/value/{value}?type=valid_type&value=valid_value","{ }","200"
+"DELETE","/external/van/identity/type/{type}/value/{value}?type=null&value=null","{ }","400"
+"DELETE","/external/van/identity/type/{type}/value/{value}?type=short_type&value=short_value","{ }","400"
+"DELETE","/external/van/identity/type/{type}/value/{value}?type=long_type&value=long_value","{ }","200"
+"DELETE","/external/van/identity/type/{type}/value/{value}?type=empty&value=","{ }","400"
+"DELETE","/external/van/identity/type/{type}/value/{value}?type=special_char&value=value#%@!^","{ }","400"
+"DELETE","/external/van/identity/type/{type}/value/{value}?type=short_type&value=very_long_value","{ }","400"
+"DELETE","/external/van/identity/type/{type}/value/{value}?type=type&value=256chars","{ }","400"
+"DELETE","/external/van/identity/type/{type}/value/{value}?type=type&value={white_space}","{ }","400"
+"DELETE","/external/van/identity/type/{type}/value/{value}?type=type&value=null","{ }","400"
+"POST","searchPartnersInVan - happy path - /external/van/partner/search?pageSize=20&pageNumber=1&limit=1","{
+  ""identity"" : {
+    ""type"" : ""1"",
+    ""value"" : ""12345"",
+    ""operation"" : ""Equals""
+  },
+  ""organisation"" : {
+    ""name"" : ""Adobe"",
+    ""operation"" : ""Equals""
+  }
+}","200"
+"POST","searchPartnersInVan - edge case - /external/van/partner/search?pageSize=20&pageNumber=1&limit=1","{
+  ""identity"" : {
+    ""type"" : ""1"",
+    ""value"" : ""12345"",
+    ""operation"" : ""Equals""
+  },
+  ""organisation"" : {
+    ""name"" : ""Adobe"",
+    ""operation"" : ""Equals""
+  }
+}","200"
+"POST","searchPartnersInVan - edge case - /external/van/partner/search?pageSize=20&pageNumber=1&limit=1","{
+  ""identity"" : {
+    ""type"" : ""1"",
+    ""value"" : ""12345"",
+    ""operation"" : ""Equals""
+  },
+  ""organisation"" : {
+    ""name"" : ""Adobe"",
+    ""operation"" : ""Equals""
+  }
+}","200"
+"POST","searchPartnersInVan - edge case - /external/van/partner/search?pageSize=20&pageNumber=1&limit=0","{
+  ""identity"" : {
+    ""type"" : ""1"",
+    ""value"" : ""12345"",
+    ""operation"" : ""Equals""
+  },
+  ""organisation"" : {
+    ""name"" : ""Adobe"",
+    ""operation"" : ""Equals""
+  }
+}","200"
+"POST","searchPartnersInVan - edge case - /external/van/partner/search?pageSize=20&pageNumber=1&limit=1","{
+  ""identity"" : {
+    ""type"" : ""1"",
+    ""value"" : ""12345"",
+    ""operation"" : ""Equals""
+  },
+  ""organisation"" : {
+    ""name"" : ""Adobe"",
+    ""operation"" : ""Equals""
+  }
+}","200"
+"POST","searchPartnersInVan - negative case - /external/van/partner/search?pageSize=20&pageNumber=1&limit=1","{
+  ""identity"" : {
+    ""type"" : ""xxxxxxxxxxxxxxx"",
+    ""value"" : ""xxxxxxxxxxxxxxx"",
+    ""operation"" : ""xxxxxxxxxxxxxxx""
+  },
+  ""organisation"" : {
+    ""name"" : ""xxxxxxxxxxxxxxx"",
+    ""operation"" : ""xxxxxxxxxxxxxxx""
+  }
+}","400"
+"POST","onboardPartner - happy path - /external/van/partner/onboard","[ {
+  ""operation"" : ""CREATE"",
+  ""identities"" : [ {
+    ""type"" : ""1"",
+    ""value"" : ""12345"",
+    ""label"" : ""DEA""
+  }, {
+    ""type"" : ""1"",
+    ""value"" : ""12345"",
+    ""label"" : ""DEA""
+  } ],
+  ""partnerName"" : ""flipkart"",
+  ""partnerId"" : ""56789"",
+  ""channelPreferred"" : true
+}, {
+  ""operation"" : ""CREATE"",
+  ""identities"" : [ {
+    ""type"" : ""1"",
+    ""value"" : ""12345"",
+    ""label"" : ""DEA""
+  }, {
+    ""type"" : ""1"",
+    ""value"" : ""12345"",
+    ""label"" : ""DEA""
+  } ],
+  ""partnerName"" : ""flipkart"",
+  ""partnerId"" : ""56789"",
+  ""channelPreferred"" : true
+} ]","200"
+"POST","onboardPartner - edge case - /external/van/partner/onboard","[ ]","200"
+"POST","onboardPartner - negative case - /external/van/partner/onboard","[ {
+  ""operation"" : ""CREATE"",
+  ""identities"" : [ {
+    ""type"" : ""1"",
+    ""value"" : ""12345"",
+    ""label"" : ""DEA""
+  }, {
+    ""type"" : ""1"",
+    ""value"" : ""12345"",
+    ""label"" : ""DEA""
+  } ],
+  ""partnerName"" : ""flipkart"",
+  ""partnerId"" : ""56789"",
+  ""channelPreferred"" : true
+}, {
+  ""operation"" : ""CREATE"",
+  ""identities"" : [ {
+    ""type"" : ""1"",
+    ""value"" : ""12345"",
+    ""label"" : ""DEA""
+  }, {
+    ""type"" : ""1"",
+    ""value"" : ""12345"",
+    ""label"" : ""DEA""
+  } ],
+  ""partnerName"" : ""flipkart"",
+  ""partnerId"" : ""56789"",
+  ""channelPreferred"" : true
+}, {
+  ""operation"" : ""CREATE"",
+  ""identities"" : [ {
+    ""type"" : ""1"",
+    ""value"" : ""12345"",
+    ""label"" : ""DEA""
+  }, {
+    ""type"" : ""1"",
+    ""value"" : ""12345"",
+    ""label"" : ""DEA""
+  } ],
+  ""partnerName"" : ""flipkart"",
+  ""partnerId"" : ""56789"",
+  ""channelPreferred"" : true
+}, {
+  ""operation"" : ""CREATE"",
+  ""identities"" : [ {
+    ""type"" : ""1"",
+    ""value"" : ""12345"",
+    ""label"" : ""DEA""
+  }, {
+    ""type"" : ""1"",
+    ""value"" : ""12345"",
+    ""label"" : ""DEA""
+  } ],
+  ""partnerName"" : ""flipkart"",
+  ""partnerId"" : ""56789"",
+  ""channelPreferred"" : true
+}, {
+  ""operation"" : ""CREATE"",
+  ""identities"" : [ {
+    ""type"" : ""1"",
+    ""value"" : ""12345"",
+    ""label"" : ""DEA""
+  }, {
+    ""type"" : ""1"",
+    ""value"" : ""12345"",
+    ""label"" : ""DEA""
+  } ],
+  ""partnerName"" : ""flipkart"",
+  ""partnerId"" : ""56789"",
+  ""channelPreferred"" : true
+} ]","400"

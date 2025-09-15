@@ -1,0 +1,134 @@
+HTTP method,test case name,endpoint,payload,expected status code
+POST,Create user - full_name 254Chars,/b2b/partner-users,"{""full_name"": ""{254Characters}"", ""user_name"": ""user_nameValidValue"", ""password"": ""passwordValidValue""}",200
+POST,Create user - full_name 255Chars,/b2b/partner-users,"{""full_name"": ""{255Characters}"", ""user_name"": ""user_nameValidValue"", ""password"": ""passwordValidValue""}",200
+POST,Create user - full_name 256Chars,/b2b/partner-users,"{""full_name"": ""{256Characters}"", ""user_name"": ""user_nameValidValue"", ""password"": ""passwordValidValue""}",400
+POST,Create user - full_name X,/b2b/partner-users,"{""full_name"": ""{XCharacters}"", ""user_name"": ""user_nameValidValue"", ""password"": ""passwordValidValue""}",200
+POST,Create user - full_name X+1,/b2b/partner-users,"{""full_name"": ""{X+1Characters}"", ""user_name"": ""user_nameValidValue"", ""password"": ""passwordValidValue""}",200
+POST,Create user - full_name X-1,/b2b/partner-users,"{""full_name"": ""{X-1Characters}"", ""user_name"": ""user_nameValidValue"", ""password"": ""passwordValidValue""}",400
+POST,Create user - full_name Y,/b2b/partner-users,"{""full_name"": ""{YCharacters}"", ""user_name"": ""user_nameValidValue"", ""password"": ""passwordValidValue""}",200
+POST,Create user - full_name Y+1,/b2b/partner-users,"{""full_name"": ""{Y+1Characters}"", ""user_name"": ""user_nameValidValue"", ""password"": ""passwordValidValue""}",400
+POST,Create user - full_name Y-1,/b2b/partner-users,"{""full_name"": ""{Y-1Characters}"", ""user_name"": ""user_nameValidValue"", ""password"": ""passwordValidValue""}",200
+POST,Create user - full_name empty,/b2b/partner-users,"{""full_name"": ""{emptyString}"", ""user_name"": ""user_nameValidValue"", ""password"": ""passwordValidValue""}",400
+POST,Create user - full_name leadingSpace,/b2b/partner-users,"{""full_name"": ""{leadingSpaceString}"", ""user_name"": ""user_nameValidValue"", ""password"": ""passwordValidValue""}",200
+POST,Create user - full_name long,/b2b/partner-users,"{""full_name"": ""{longString}"", ""user_name"": ""user_nameValidValue"", ""password"": ""passwordValidValue""}",200
+POST,Create user - full_name null,/b2b/partner-users,"{""full_name"": ""{null}"", ""user_name"": ""user_nameValidValue"", ""password"": ""passwordValidValue""}",400
+POST,Create user - full_name specialChars,/b2b/partner-users,"{""full_name"": ""{specialCharsString}"", ""user_name"": ""user_nameValidValue"", ""password"": ""passwordValidValue""}",200
+POST,Create user - full_name trailingSpace,/b2b/partner-users,"{""full_name"": ""{trailingSpaceString}"", ""user_name"": ""user_nameValidValue"", ""password"": ""passwordValidValue""}",200
+POST,Create user - missing full_name,/b2b/partner-users,"{""user_name"": ""user_nameValidValue"", ""password"": ""passwordValidValue""}",400
+POST,Create user - missing password,/b2b/partner-users,"{""full_name"": ""full_nameValidValue"", ""user_name"": ""user_nameValidValue""}",400
+POST,Create user - missing user_name,/b2b/partner-users,"{""full_name"": ""full_nameValidValue"", ""password"": ""passwordValidValue""}",400
+POST,Create user - password 254Chars,/b2b/partner-users,"{""full_name"": ""full_nameValidValue"", ""user_name"": ""user_nameValidValue"", ""password"": ""{254Characters}""}",200
+POST,Create user - password 255Chars,/b2b/partner-users,"{""full_name"": ""full_nameValidValue"", ""user_name"": ""user_nameValidValue"", ""password"": ""{255Characters}""}",200
+POST,Create user - password 256Chars,/b2b/partner-users,"{""full_name"": ""full_nameValidValue"", ""user_name"": ""user_nameValidValue"", ""password"": ""{256Characters}""}",400
+POST,Create user - password X,/b2b/partner-users,"{""full_name"": ""full_nameValidValue"", ""user_name"": ""user_nameValidValue"", ""password"": ""{XCharacters}""}",200
+POST,Create user - password X+1,/b2b/partner-users,"{""full_name"": ""full_nameValidValue"", ""user_name"": ""user_nameValidValue"", ""password"": ""{X+1Characters}""}",200
+POST,Create user - password X-1,/b2b/partner-users,"{""full_name"": ""full_nameValidValue"", ""user_name"": ""user_nameValidValue"", ""password"": ""{X-1Characters}""}",400
+POST,Create user - password Y,/b2b/partner-users,"{""full_name"": ""full_nameValidValue"", ""user_name"": ""user_nameValidValue"", ""password"": ""{YCharacters}""}",200
+POST,Create user - password Y+1,/b2b/partner-users,"{""full_name"": ""full_nameValidValue"", ""user_name"": ""user_nameValidValue"", ""password"": ""{Y+1Characters}""}",400
+POST,Create user - password Y-1,/b2b/partner-users,"{""full_name"": ""full_nameValidValue"", ""user_name"": ""user_nameValidValue"", ""password"": ""{Y-1Characters}""}",200
+POST,Create user - password empty,/b2b/partner-users,"{""full_name"": ""full_nameValidValue"", ""user_name"": ""user_nameValidValue"", ""password"": ""{emptyString}""}",400
+POST,Create user - password leadingSpace,/b2b/partner-users,"{""full_name"": ""full_nameValidValue"", ""user_name"": ""user_nameValidValue"", ""password"": ""{leadingSpaceString}""}",200
+POST,Create user - password long,/b2b/partner-users,"{""full_name"": ""full_nameValidValue"", ""user_name"": ""user_nameValidValue"", ""password"": ""{longString}""}",200
+POST,Create user - password null,/b2b/partner-users,"{""full_name"": ""full_nameValidValue"", ""user_name"": ""user_nameValidValue"", ""password"": ""{null}""}",400
+POST,Create user - password specialChars,/b2b/partner-users,"{""full_name"": ""full_nameValidValue"", ""user_name"": ""user_nameValidValue"", ""password"": ""{specialCharsString}""}",200
+POST,Create user - password trailingSpace,/b2b/partner-users,"{""full_name"": ""full_nameValidValue"", ""user_name"": ""user_nameValidValue"", ""password"": ""{trailingSpaceString}""}",200
+POST,Create user - user_name 254Chars,/b2b/partner-users,"{""full_name"": ""full_nameValidValue"", ""user_name"": ""{254Characters}"", ""password"": ""passwordValidValue""}",200
+POST,Create user - user_name 255Chars,/b2b/partner-users,"{""full_name"": ""full_nameValidValue"", ""user_name"": ""{255Characters}"", ""password"": ""passwordValidValue""}",200
+POST,Create user - user_name 256Chars,/b2b/partner-users,"{""full_name"": ""full_nameValidValue"", ""user_name"": ""{256Characters}"", ""password"": ""passwordValidValue""}",400
+POST,Create user - user_name X,/b2b/partner-users,"{""full_name"": ""full_nameValidValue"", ""user_name"": ""{XCharacters}"", ""password"": ""passwordValidValue""}",200
+POST,Create user - user_name X+1,/b2b/partner-users,"{""full_name"": ""full_nameValidValue"", ""user_name"": ""{X+1Characters}"", ""password"": ""passwordValidValue""}",200
+POST,Create user - user_name X-1,/b2b/partner-users,"{""full_name"": ""full_nameValidValue"", ""user_name"": ""{X-1Characters}"", ""password"": ""passwordValidValue""}",400
+POST,Create user - user_name Y,/b2b/partner-users,"{""full_name"": ""full_nameValidValue"", ""user_name"": ""{YCharacters}"", ""password"": ""passwordValidValue""}",200
+POST,Create user - user_name Y+1,/b2b/partner-users,"{""full_name"": ""full_nameValidValue"", ""user_name"": ""{Y+1Characters}"", ""password"": ""passwordValidValue""}",400
+POST,Create user - user_name Y-1,/b2b/partner-users,"{""full_name"": ""full_nameValidValue"", ""user_name"": ""{Y-1Characters}"", ""password"": ""passwordValidValue""}",200
+POST,Create user - user_name empty,/b2b/partner-users,"{""full_name"": ""full_nameValidValue"", ""user_name"": ""{emptyString}"", ""password"": ""passwordValidValue""}",400
+POST,Create user - user_name leadingSpace,/b2b/partner-users,"{""full_name"": ""full_nameValidValue"", ""user_name"": ""{leadingSpaceString}"", ""password"": ""passwordValidValue""}",200
+POST,Create user - user_name long,/b2b/partner-users,"{""full_name"": ""full_nameValidValue"", ""user_name"": ""{longString}"", ""password"": ""passwordValidValue""}",200
+POST,Create user - user_name null,/b2b/partner-users,"{""full_name"": ""full_nameValidValue"", ""user_name"": ""{null}"", ""password"": ""passwordValidValue""}",400
+POST,Create user - user_name specialChars,/b2b/partner-users,"{""full_name"": ""full_nameValidValue"", ""user_name"": ""{specialCharsString}"", ""password"": ""passwordValidValue""}",200
+POST,Create user - user_name trailingSpace,/b2b/partner-users,"{""full_name"": ""full_nameValidValue"", ""user_name"": ""{trailingSpaceString}"", ""password"": ""passwordValidValue""}",200
+POST,Create user - valid,/b2b/partner-users,"{""full_name"": ""full_nameValidValue"", ""user_name"": ""user_nameValidValue"", ""password"": ""passwordValidValue""}",200
+GET,Get user - id empty,/b2b/partner-users/{emptyString},{},400
+GET,Get user - id leadingSpace,/b2b/partner-users/{leadingSpaceString},{},400
+GET,Get user - id long,/b2b/partner-users/{longString},{},400
+GET,Get user - id null,/b2b/partner-users/{null},{},400
+GET,Get user - id special,/b2b/partner-users/{specialCharsString},{},400
+GET,Get user - id trailingSpace,/b2b/partner-users/{trailingSpaceString},{},400
+GET,Get user - valid id,/b2b/partner-users/partnerUserIdValidValue,{},200
+GET,List users - active false,/b2b/partner-users?active=false,{},200
+GET,List users - active notBooleanValidValue,/b2b/partner-users?active=notBooleanValidValue,{},400
+GET,List users - active true,/b2b/partner-users?active=true,{},200
+GET,List users - active {emptyString},/b2b/partner-users?active={emptyString},{},200
+GET,List users - active {null},/b2b/partner-users?active={null},{},400
+GET,List users - happy path,/b2b/partner-users?active=true&pageSize={positiveNumber}&pageNumber={positiveNumber}&sort=+user_name&q=user_nameValidValue,{},200
+GET,List users - pageNumber {negativeNumber},/b2b/partner-users?pageNumber={negativeNumber},{},400
+GET,List users - pageNumber {positiveNumber},/b2b/partner-users?pageNumber={positiveNumber},{},200
+GET,List users - pageNumber {veryLargeNumber},/b2b/partner-users?pageNumber={veryLargeNumber},{},400
+GET,List users - pageNumber {zero},/b2b/partner-users?pageNumber={zero},{},400
+GET,List users - pageSize {negativeNumber},/b2b/partner-users?pageSize={negativeNumber},{},400
+GET,List users - pageSize {positiveNumber},/b2b/partner-users?pageSize={positiveNumber},{},200
+GET,List users - pageSize {veryLargeNumber},/b2b/partner-users?pageSize={veryLargeNumber},{},400
+GET,List users - pageSize {zero},/b2b/partner-users?pageSize={zero},{},400
+GET,List users - q user_nameValidValue,/b2b/partner-users?q=user_nameValidValue,{},200
+GET,List users - q {emptyString},/b2b/partner-users?q={emptyString},{},200
+GET,List users - q {leadingSpaceString},/b2b/partner-users?q={leadingSpaceString},{},200
+GET,List users - q {longString},/b2b/partner-users?q={longString},{},200
+GET,List users - q {null},/b2b/partner-users?q={null},{},200
+GET,List users - q {specialCharsString},/b2b/partner-users?q={specialCharsString},{},200
+GET,List users - q {trailingSpaceString},/b2b/partner-users?q={trailingSpaceString},{},200
+GET,List users - sort +full_name,/b2b/partner-users?sort=+full_name,{},200
+GET,List users - sort +updated_date,/b2b/partner-users?sort=+updated_date,{},200
+GET,List users - sort +user_name,/b2b/partner-users?sort=+user_name,{},200
+GET,List users - sort -full_name,/b2b/partner-users?sort=-full_name,{},200
+GET,List users - sort -updated_date,/b2b/partner-users?sort=-updated_date,{},200
+GET,List users - sort -user_name,/b2b/partner-users?sort=-user_name,{},200
+GET,List users - sort username,/b2b/partner-users?sort=username,{},400
+GET,List users - sort {emptyString},/b2b/partner-users?sort={emptyString},{},200
+GET,List users - sort {longString},/b2b/partner-users?sort={longString},{},400
+GET,List users - sort {null},/b2b/partner-users?sort={null},{},400
+PUT,Update password - bad path id empty,/b2b/partner-users/{emptyString}/updatePassword,"{""new_password"": ""new_passwordValidValue""}",400
+PUT,Update password - bad path id leadingSpace,/b2b/partner-users/{leadingSpaceString}/updatePassword,"{""new_password"": ""new_passwordValidValue""}",400
+PUT,Update password - bad path id long,/b2b/partner-users/{longString}/updatePassword,"{""new_password"": ""new_passwordValidValue""}",400
+PUT,Update password - bad path id null,/b2b/partner-users/{null}/updatePassword,"{""new_password"": ""new_passwordValidValue""}",400
+PUT,Update password - bad path id special,/b2b/partner-users/{specialCharsString}/updatePassword,"{""new_password"": ""new_passwordValidValue""}",400
+PUT,Update password - bad path id trailingSpace,/b2b/partner-users/{trailingSpaceString}/updatePassword,"{""new_password"": ""new_passwordValidValue""}",400
+PUT,Update password - missing body,/b2b/partner-users/partnerUserIdValidValue/updatePassword,{},400
+PUT,Update password - missing new_password,/b2b/partner-users/partnerUserIdValidValue/updatePassword,{},400
+PUT,Update password - new_password 254Chars,/b2b/partner-users/partnerUserIdValidValue/updatePassword,"{""new_password"": ""{254Characters}""}",204
+PUT,Update password - new_password 255Chars,/b2b/partner-users/partnerUserIdValidValue/updatePassword,"{""new_password"": ""{255Characters}""}",204
+PUT,Update password - new_password 256Chars,/b2b/partner-users/partnerUserIdValidValue/updatePassword,"{""new_password"": ""{256Characters}""}",400
+PUT,Update password - new_password X,/b2b/partner-users/partnerUserIdValidValue/updatePassword,"{""new_password"": ""{XCharacters}""}",204
+PUT,Update password - new_password X+1,/b2b/partner-users/partnerUserIdValidValue/updatePassword,"{""new_password"": ""{X+1Characters}""}",204
+PUT,Update password - new_password X-1,/b2b/partner-users/partnerUserIdValidValue/updatePassword,"{""new_password"": ""{X-1Characters}""}",400
+PUT,Update password - new_password Y,/b2b/partner-users/partnerUserIdValidValue/updatePassword,"{""new_password"": ""{YCharacters}""}",204
+PUT,Update password - new_password Y+1,/b2b/partner-users/partnerUserIdValidValue/updatePassword,"{""new_password"": ""{Y+1Characters}""}",400
+PUT,Update password - new_password Y-1,/b2b/partner-users/partnerUserIdValidValue/updatePassword,"{""new_password"": ""{Y-1Characters}""}",204
+PUT,Update password - new_password empty,/b2b/partner-users/partnerUserIdValidValue/updatePassword,"{""new_password"": ""{emptyString}""}",400
+PUT,Update password - new_password leadingSpace,/b2b/partner-users/partnerUserIdValidValue/updatePassword,"{""new_password"": ""{leadingSpaceString}""}",204
+PUT,Update password - new_password long,/b2b/partner-users/partnerUserIdValidValue/updatePassword,"{""new_password"": ""{longString}""}",204
+PUT,Update password - new_password null,/b2b/partner-users/partnerUserIdValidValue/updatePassword,"{""new_password"": ""{null}""}",400
+PUT,Update password - new_password specialChars,/b2b/partner-users/partnerUserIdValidValue/updatePassword,"{""new_password"": ""{specialCharsString}""}",204
+PUT,Update password - new_password trailingSpace,/b2b/partner-users/partnerUserIdValidValue/updatePassword,"{""new_password"": ""{trailingSpaceString}""}",204
+PUT,Update password - valid,/b2b/partner-users/partnerUserIdValidValue/updatePassword,"{""new_password"": ""new_passwordValidValue""}",204
+PUT,Update user - bad path id empty,/b2b/partner-users/{emptyString},"{""full_name"": ""full_nameValidValue"", ""status"": ""Active""}",400
+PUT,Update user - bad path id leadingSpace,/b2b/partner-users/{leadingSpaceString},"{""full_name"": ""full_nameValidValue"", ""status"": ""Active""}",400
+PUT,Update user - bad path id long,/b2b/partner-users/{longString},"{""full_name"": ""full_nameValidValue"", ""status"": ""Active""}",400
+PUT,Update user - bad path id null,/b2b/partner-users/{null},"{""full_name"": ""full_nameValidValue"", ""status"": ""Active""}",400
+PUT,Update user - bad path id special,/b2b/partner-users/{specialCharsString},"{""full_name"": ""full_nameValidValue"", ""status"": ""Active""}",400
+PUT,Update user - bad path id trailingSpace,/b2b/partner-users/{trailingSpaceString},"{""full_name"": ""full_nameValidValue"", ""status"": ""Active""}",400
+PUT,Update user - missing full_name,/b2b/partner-users/partnerUserIdValidValue,"{""status"": ""Active""}",400
+PUT,Update user - status empty,/b2b/partner-users/partnerUserIdValidValue,"{""full_name"": ""full_nameValidValue"", ""status"": ""{emptyString}""}",400
+PUT,Update user - status long,/b2b/partner-users/partnerUserIdValidValue,"{""full_name"": ""full_nameValidValue"", ""status"": ""{longString}""}",400
+PUT,Update user - status nonEnum,/b2b/partner-users/partnerUserIdValidValue,"{""full_name"": ""full_nameValidValue"", ""status"": ""Enabled""}",400
+PUT,Update user - status null,/b2b/partner-users/partnerUserIdValidValue,"{""full_name"": ""full_nameValidValue"", ""status"": ""{null}""}",400
+PUT,Update user - status special,/b2b/partner-users/partnerUserIdValidValue,"{""full_name"": ""full_nameValidValue"", ""status"": ""{specialCharsString}""}",400
+PUT,Update user - valid Active,/b2b/partner-users/partnerUserIdValidValue,"{""full_name"": ""full_nameValidValue"", ""status"": ""Active""}",204
+PUT,Update user - valid Inactive,/b2b/partner-users/partnerUserIdValidValue,"{""full_name"": ""full_nameValidValue"", ""status"": ""Inactive""}",204
+DELETE,Delete user - id empty,/b2b/partner-users/{emptyString},{},400
+DELETE,Delete user - id leadingSpace,/b2b/partner-users/{leadingSpaceString},{},400
+DELETE,Delete user - id long,/b2b/partner-users/{longString},{},400
+DELETE,Delete user - id null,/b2b/partner-users/{null},{},400
+DELETE,Delete user - id special,/b2b/partner-users/{specialCharsString},{},400
+DELETE,Delete user - id trailingSpace,/b2b/partner-users/{trailingSpaceString},{},400
+DELETE,Delete user - non-existent id,/b2b/partner-users/partnerUserIdNonExistent,{},404
+DELETE,Delete user - valid id,/b2b/partner-users/partnerUserIdValidValue,{},204

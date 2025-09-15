@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # testCaseGenerator
 # API Test Automation Framework
 
@@ -67,3 +68,7 @@ Content-Type: application/json
   "userId": 2134243234342324,
   "active": true
 }
+=======
+# boc_appdev
+UI and API Automation for appdev
+>>>>>>> d88529c (nitial commit)
