@@ -1,17 +1,17 @@
 <Environments>
     <Environment>
         <Setup>
-            <tname>wmiopreprod</tname>
-            <tenant>https://wmiopreprod.preprod-int-aws-us.webmethods.io</tenant>
-            <idm>idm-us-west-2.softwareag-preprod.cloud</idm>
-            <host>wmiopreprod.preprod-int-aws-us.webmethods.io</host>
+            <tname>awdevtenant2</tname>
+            <tenant>https://awdevtenant2.dev-int-aws-us.webmethods.io</tenant>
+            <idm>idm-aw-us.test.platform.ipaas.ibm.com</idm>
+            <host>awdevtenant2.dev-int-aws-us.webmethods.io</host>
             <buildnum>10.17.20.185_beta</buildnum>
-            <envlevel>preprod</envlevel>
+            <envlevel>dev</envlevel>
         </Setup>
         <Users>
             <AdminUser>
                 <username>b2bqa</username>
-                <pwd>AwsPreprodWelcome@1234</pwd>
+                <pwd>AWSDevWelcome@1234</pwd>
                 <type>webdriver</type>
                 <gridhost>vmnx-b2blinux04.eur.ad.sag</gridhost>
             </AdminUser>

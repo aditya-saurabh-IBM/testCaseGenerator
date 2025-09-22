@@ -4,12 +4,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.cucumber.java.en.Given;
 import io.restassured.response.Response;
+import utils.GenericMethods;
 import utils.LoadEnvironment;
-import utils.RestAssuredUtils;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
-import org.testng.Assert;
+import org.apache.commons.csv.CSVPrinter;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -20,8 +20,6 @@ import java.io.Reader;
 import java.util.regex.*;
 import java.util.*;
 
-import static io.restassured.RestAssured.given;
-
 public class TcGeneration {
 
     Response responseFromPOST;
@@ -30,87 +28,90 @@ public class TcGeneration {
     Response responseFromDELETE;
     Response response;
 
-    RestAssuredUtils restAssuredUtils = new RestAssuredUtils();
+    GenericMethods genericMethods = new GenericMethods();
     ScenarioHooks hooks = new ScenarioHooks();
 
-    ArrayList<String> params = new ArrayList<String>(); // still available, though replacement no longer depends on it
+    ArrayList<String> params = new ArrayList<String>(); // collected if needed elsewhere
     Map<String, String> b2bParamKeyValues = new HashMap<>();
+
     private static final String FILE_PATH = "src/test/java/resources/parametersNotHandled/parameters.txt";
+    private static final String OUTPUT_CSV = "src/test/java/resources/GeneratedTestCases/modifiedTestCases.csv";
+
     private static boolean cleared = false; // ensures clearing happens only once
     private static final Set<String> writtenWords = new HashSet<>(); // track unique entries
 
-    // ============ CSV Runner ============
+    // -------- precompiled patterns for speed & clarity --------
+    private static final Pattern CAMEL_SPLIT = Pattern.compile("([a-z])([A-Z])");
+    private static final Pattern NON_ALNUM = Pattern.compile("[^a-z0-9]+");
+    private static final Pattern LEN_TOKEN = Pattern.compile("^(\\d{2,4})(?:char|chars|character|characters)$");
+    private static final Pattern PLACEHOLDER = Pattern.compile("^\\$\\{([^}]+)\\}$");
+    private static final Pattern PLACEHOLDER_ANYWHERE = Pattern.compile("\\$\\{([^}]+)\\}");
+
+    //// ============ CSV Runner ============
+
     @Given("Iterate each row and replace the parameters in file {string}")
     public void iterateEachRowAndRunTheTestCaseOfFile(String csvPath) throws Exception {
-
         ObjectMapper mapper = new ObjectMapper();
 
-        Reader in = new FileReader(csvPath);
-        Iterable<CSVRecord> recs = CSVFormat.DEFAULT.withFirstRecordAsHeader().parse(in);
-
-        int rowNum = 0;
-        for (CSVRecord r : recs) {
-            rowNum++;
-
-            String method = r.get("HTTP method").trim().toUpperCase(Locale.ROOT);
-            String name = r.get("test case name");
-
-            // Endpoint
-            String ep = LoadEnvironment.tenant + r.get("endpoint");
-            storeParamsInList(ep); // still collects parameters if you need them elsewhere
-            String resolvedEP = replaceParameters(ep);
-
-            // Payload
-            String payload = r.get("payload");
-            payload = replaceParameters(payload); // JSON-aware replacement (preserves types)
-
-            int expected = Integer.parseInt(r.get("expected status code"));
-
-            System.out.println("---- Executing Row " + rowNum + ": " + name + " ----");
-            System.out.println("===========================================");
-            System.out.println(" Test Case Name   : " + name);
-            System.out.println(" HTTP Method      : " + method);
-            System.out.println(" Endpoint         : " + resolvedEP);
-            System.out.println(" Payload          : " + payload);
-            System.out.println(" Expected Status  : " + expected);
-            System.out.println("===========================================");
-
-            // ==== Example request wiring (kept commented) ====
-            // var req = given().relaxedHTTPSValidation().header("Accept",
-            // "application/json");
-            // if (payload != null && !payload.trim().equals("{}")) {
-            // JsonNode body = mapper.readTree(payload);
-            // if (body.size() > 0) {
-            // req = req.contentType("application/json").body(body.toString());
-            // }
-            // }
-            //
-            // Response resp;
-            // if ("POST".equals(method)) {
-            // resp = req.post(resolvedEP, hooks.cookie).then().extract().response();
-            // } else if ("GET".equals(method)) {
-            // resp = req.get(resolvedEP);
-            // } else if ("PUT".equals(method)) {
-            // resp = req.put(resolvedEP);
-            // } else if ("PATCH".equals(method)) {
-            // resp = req.patch(resolvedEP);
-            // } else if ("DELETE".equals(method)) {
-            // resp = req.delete(resolvedEP);
-            // } else {
-            // throw new IllegalArgumentException("Unsupported HTTP method: " + method);
-            // }
-            //
-            // int actual = resp.getStatusCode();
-            // System.out.println("Expected=" + expected + " | Actual=" + actual);
-            // Assert.assertEquals(actual, expected, "[FAIL] Row " + rowNum + " (" + name +
-            // ") => expected " + expected + " but got " + actual);
+        // Ensure parent directory exists
+        File outFile = new File(OUTPUT_CSV);
+        File parent = outFile.getParentFile();
+        if (parent != null && !parent.exists()) {
+            parent.mkdirs();
         }
 
-        in.close();
+        // OVERWRITE file each run (clear), then always write header once
+        try (Reader in = new FileReader(csvPath);
+                CSVPrinter out = new CSVPrinter(new FileWriter(outFile, false), CSVFormat.DEFAULT)) {
+
+            // Always write header because we just overwrote the file
+            out.printRecord("HTTP Method", "test case name", "endpoint", "payload", "expected status");
+
+            Iterable<CSVRecord> recs = CSVFormat.DEFAULT.withFirstRecordAsHeader().parse(in);
+
+            int rowNum = 0;
+            for (CSVRecord r : recs) {
+                rowNum++;
+
+                String method = r.get("HTTP method").trim().toUpperCase(Locale.ROOT);
+                String name = r.get("test case name");
+
+                // Endpoint
+                String ep = LoadEnvironment.tenant + "/b2b" + r.get("endpoint");
+                storeParamsInList(ep);
+                String resolvedEP = replaceParameters(ep);
+
+                // Payload
+                String payload = r.get("payload");
+                payload = replaceParameters(payload); // JSON-aware replacement (preserves types)
+
+                int expected = Integer.parseInt(r.get("expected status code"));
+
+                System.out.println("---- Executing Row " + rowNum + ": " + name + " ----");
+                System.out.println("===========================================");
+                System.out.println(" Test Case Name   : " + name);
+                System.out.println(" HTTP Method      : " + method);
+                System.out.println(" Endpoint         : " + resolvedEP);
+                System.out.println(" Payload          : " + payload);
+                System.out.println(" Expected Status  : " + expected);
+                System.out.println("===========================================");
+
+                if ("POST".equals(method)) {
+                    responseFromPOST = genericMethods.B2B_POST_Request(resolvedEP, payload);
+                    System.out
+                            .println("Status code :: " + responseFromPOST.then().extract().response().getStatusCode());
+                }
+
+                // Write to the output CSV for each row
+                out.printRecord(method, name, resolvedEP, payload, String.valueOf(expected));
+            }
+
+            out.flush();
+        }
     }
 
     // ============================================================
-    // ============== NEW: Typed placeholder replacement ==========
+    // ============== Typed placeholder replacement ===============
     // ============================================================
 
     /**
@@ -138,14 +139,10 @@ public class TcGeneration {
             JsonNode replaced = replaceJsonNodePlaceholders(root);
             return mapper.writeValueAsString(replaced);
         } catch (Exception e) {
-            System.err.println(
-                    "[WARN] JSON parse failed in replaceParametersInJson; falling back to text: " + e.getMessage());
+            System.err.println("[WARN] JSON parse failed; falling back to text: " + e.getMessage());
             return replaceParametersInText(json);
         }
     }
-
-    private static final Pattern PLACEHOLDER = Pattern.compile("^\\$\\{([^}]+)\\}$");
-    private static final Pattern PLACEHOLDER_ANYWHERE = Pattern.compile("\\$\\{([^}]+)\\}");
 
     private JsonNode replaceJsonNodePlaceholders(JsonNode node) {
         ObjectMapper mapper = new ObjectMapper();
@@ -192,7 +189,7 @@ public class TcGeneration {
             while (mAny.find()) {
                 String param = mAny.group(1);
                 Object value = resolveParamValue(param);
-                // Inside strings, we must stringify
+                // Inside strings, stringify
                 mAny.appendReplacement(sb, Matcher.quoteReplacement(String.valueOf(value)));
             }
             mAny.appendTail(sb);
@@ -220,15 +217,23 @@ public class TcGeneration {
 
     /**
      * Convert a parameter name (from ${...}) to a **typed** value.
-     * Uses mapToIntent(...) to classify, then converts to
-     * Integer/Boolean/null/String accordingly.
+     * - Uses mapToIntent(...) to classify
+     * - Converts to Integer/Boolean/null/String accordingly
+     * - If UNKNOWN, logs to file and returns the **original placeholder** so you
+     * can fix rules later.
      */
     private Object resolveParamValue(String paramName) {
         String intentOrLiteral = mapToIntent(paramName);
         if (intentOrLiteral == null)
             return null;
 
-        // Simple boolean name hints (you can expand this)
+        // Handle unknowns: log & keep placeholder unchanged
+        if ("UNKNOWN".equals(intentOrLiteral)) {
+            writeLine(paramName); // log for future rule update
+            return "${" + paramName + "}";
+        }
+
+        // Simple boolean name hints (expand if needed)
         String canon = paramName.toLowerCase(Locale.ROOT);
         if (canon.contains("true"))
             return Boolean.TRUE;
@@ -285,8 +290,6 @@ public class TcGeneration {
         while (matcher.find()) {
             params.add(matcher.group(1)); // inside ${...}
         }
-
-        // Print ArrayList
         // System.out.println(params);
     }
 
@@ -305,11 +308,9 @@ public class TcGeneration {
     public static final class Intent {
         public static final String PARTNER_USER_NAME_VALID = "partner_user_name_valid";
         public static final String PARTNER_USER_NAME_INVALID = "partner_user_name_invalid";
-        public static final String PARTNER_USER_ID_VALID = "2134243234342324";
+        public static final String PARTNER_USER_ID_VALID = "2134243234342324"; // adjust if you later fetch live
         public static final String PARTNER_USER_ID_INVALID = "partner_user_id_invalid";
 
-        // For empty we used a single space earlier; often better to emit "".
-        // Keeping as-is to preserve your existing semantics.
         public static final String EMPTY = " ";
         public static final String NULLL = "null";
         public static final String LONG = "long";
@@ -320,7 +321,7 @@ public class TcGeneration {
         public static final String largeNumber = String.valueOf(Integer.MAX_VALUE);
 
         public static final String char128 = generateString("B2B_API_Auto_", "A", 128);
-        public static final String char127 = generateString("B2B_API_Auto_", "A", 128);
+        public static final String char127 = generateString("B2B_API_Auto_", "A", 127);
         public static final String char129 = generateString("B2B_API_Auto_", "A", 129);
         public static final String char254 = generateString("B2B_API_Auto_", "A", 254);
         public static final String char255 = generateString("B2B_API_Auto_", "A", 255);
@@ -335,64 +336,98 @@ public class TcGeneration {
     // ============== Heuristic Param → Intent mapping ============
     // ============================================================
 
+    // Tokenize once and use a Set for O(1) membership checks
+    private static Set<String> tokensOf(String raw) {
+        if (raw == null)
+            return Collections.emptySet();
+        String s = CAMEL_SPLIT.matcher(raw).replaceAll("$1 $2");
+        s = NON_ALNUM.matcher(s).replaceAll(" ").toLowerCase().trim();
+        if (s.isEmpty())
+            return Collections.emptySet();
+        String[] parts = s.split("\\s+");
+        HashSet<String> set = new HashSet<>(parts.length * 2);
+        for (String p : parts)
+            set.add(p);
+        return set;
+    }
+
+    private static String detectLengthToken(Set<String> tokens) {
+        for (String t : tokens) {
+            Matcher m = LEN_TOKEN.matcher(t);
+            if (m.matches())
+                return m.group(1); // e.g., "256"
+            // also support a plain numeric token
+            boolean allDigits = true;
+            for (int i = 0; i < t.length(); i++) {
+                char c = t.charAt(i);
+                if (c < '0' || c > '9') {
+                    allDigits = false;
+                    break;
+                }
+            }
+            if (allDigits)
+                return t;
+        }
+        return null;
+    }
+
     public static String mapToIntent(String paramName) {
-        if (paramName == null)
+        Set<String> t = tokensOf(paramName);
+        if (t.isEmpty())
+            return "UNKNOWN";
+
+        // quick edges
+        if (t.contains("empty"))
             return Intent.EMPTY;
-
-        // // Canonicalize once: lowercase, non-alnum -> space
-        // String c = paramName.toLowerCase().replaceAll("[^a-z0-9]+", " ").trim();
-
-        // Insert spaces before capitals, then lowercase
-        String c = paramName.replaceAll("([a-z])([A-Z])", "$1 $2")
-                .toLowerCase()
-                .replaceAll("[^a-z0-9]+", " ")
-                .trim();
-
-        // global quick cases (edge/boundary placeholders)
-        if (containsWord(c, "empty"))
-            return Intent.EMPTY;
-        if (containsWord(c, "null"))
+        if (t.contains("null"))
             return Intent.NULLL;
-        if (containsWord(c, "long"))
+        if (t.contains("long"))
             return Intent.LONG;
-        if (containsWord(c, "negative"))
+        if (t.contains("negative"))
             return Intent.negative;
-        if (containsWord(c, "zero"))
-            return Intent.zero; // << fix: zero should map to "0"
-        if (containsWord(c, "leading"))
+        if (t.contains("zero"))
+            return Intent.zero;
+        if (t.contains("leading"))
             return Intent.leadingSpaceString;
-        if (containsWord(c, "trailing"))
+        if (t.contains("trailing"))
             return Intent.trailingSpaceString;
 
-        if (containsAny(c, new String[] { "127", "127char", "127characters", "127character" }))
-            return Intent.char127;
-        if (containsAny(c, new String[] { "128", "128char", "128characters", "128character" }))
-            return Intent.char128;
-        if (containsAny(c, new String[] { "129", "129char", "129characters", "129character" }))
-            return Intent.char129;
-        if (containsAny(c, new String[] { "254", "254char", "254characters", "254character" }))
-            return Intent.char254;
-        if (containsAny(c, new String[] { "255", "255char", "255characters", "255character" }))
-            return Intent.char255;
-        if (containsAny(c, new String[] { "256", "256char", "256characters", "256character" }))
-            return Intent.char256;
+        // general length detection like 127chars / 256characters / plain "256"
+        String len = detectLengthToken(t);
+        if (len != null) {
+            switch (len) {
+                case "127":
+                    return Intent.char127;
+                case "128":
+                    return Intent.char128;
+                case "129":
+                    return Intent.char129;
+                case "254":
+                    return Intent.char254;
+                case "255":
+                    return Intent.char255;
+                case "256":
+                    return Intent.char256;
+                default:
+                    /* ignore other numbers */ break;
+            }
+        }
 
-        if (containsAny(c, new String[] { "special", "specialcharacters", "specialchar", "specialcharacter" }))
+        // special character strings
+        if (t.contains("special") || t.contains("specialcharacters") ||
+                t.contains("specialchar") || t.contains("specialcharacter")) {
             return Intent.specialCharsString;
+        }
 
-        // synonyms (add freely as your naming evolves)
-        boolean hasPartner = containsAny(c, new String[] { "partner", "tradingpartner", "prtnr" });
-        boolean hasUser = containsAny(c, new String[] { "user", "usr", "member" });
-        boolean hasName = containsAny(c, new String[] { "name", "username", "user name", "full name", "fullname" });
-        boolean hasId = containsAny(c, new String[] { "id", "user id", "userid", "identifier" });
-        boolean hasProfile = containsAny(c,
-                new String[] { "profile", "prof", "tradingpartnerprofile", "partnerprofile" });
-        boolean hasSpaces = containsAny(c, new String[] { "spaces", "space", "withspaces", "with spaces" });
+        boolean hasPartner = t.contains("partner") || t.contains("tradingpartner") || t.contains("prtnr");
+        boolean hasUser = t.contains("user") || t.contains("usr") || t.contains("member");
+        boolean hasName = t.contains("name") || t.contains("username") || (t.contains("full") && t.contains("name"));
+        boolean hasId = t.contains("id") || t.contains("userid") || t.contains("user_id") || t.contains("identifier");
+        boolean hasSpaces = t.contains("with") && t.contains("spaces");
 
-        boolean isValid = containsWord(c, "valid") || containsWord(c, "existing") || containsWord(c, "correct")
-                || containsWord(c, "right");
-        boolean isInvalid = containsWord(c, "invalid") || containsWord(c, "non existent") || containsWord(c, "bad")
-                || containsWord(c, "not found");
+        boolean isValid = t.contains("valid") || t.contains("existing") || t.contains("correct") || t.contains("right");
+        boolean isInvalid = t.contains("invalid") || (t.contains("non") && t.contains("existent")) ||
+                t.contains("bad") || (t.contains("not") && t.contains("found"));
 
         // specific → generic
         if (hasPartner && hasUser && hasName && isValid)
@@ -404,7 +439,7 @@ public class TcGeneration {
         if (hasPartner && hasUser && hasId && isInvalid)
             return Intent.PARTNER_USER_ID_INVALID;
 
-        // (questionable mapping in original code; keeping close to original)
+        // (legacy mapping retained—consider revisiting)
         if (hasUser && hasName && isValid)
             return Intent.PARTNER_USER_ID_INVALID;
         if (hasUser && hasName && hasSpaces && isValid)
@@ -413,9 +448,7 @@ public class TcGeneration {
         if (hasId && isValid)
             return Intent.DEFAULT_ID_VALID;
 
-        // Add parameter name in a file so that it can be added to conditions in next
-        // run
-        return writeLine(paramName);
+        return "UNKNOWN"; // caller logs and preserves placeholder
     }
 
     // Writes a new line to the file (only if not duplicate), appending after first
@@ -428,7 +461,6 @@ public class TcGeneration {
             return "parameter already exists in file";
         }
 
-        // ensure parent directory exists
         try {
             File f = new File(FILE_PATH);
             File parent = f.getParentFile();
@@ -443,7 +475,6 @@ public class TcGeneration {
                 writer.newLine();
             }
 
-            // mark that we've done the first write and remember this parameter
             cleared = true;
             writtenWords.add(text);
             return "parameter added to file";
@@ -453,6 +484,7 @@ public class TcGeneration {
         }
     }
 
+    // (kept for backward compatibility—no longer used by mapToIntent)
     private static boolean containsWord(String text, String word) {
         String t = " " + text + " ";
         String w = " " + word + " ";

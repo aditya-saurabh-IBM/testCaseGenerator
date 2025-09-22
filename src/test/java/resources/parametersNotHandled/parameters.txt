@@ -1,3 +1,9 @@
 fullNameAnother
+userNameExisting
+passwordValidValue
+userNameValidValue
 fullNameWithSpaces
 userNameWithSpaces
+fullNameValidValue
+partnerUserIdNotFound
+partnerUserIdValid

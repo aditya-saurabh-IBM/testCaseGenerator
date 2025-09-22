@@ -6,7 +6,7 @@ import io.cucumber.java.en.Given;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import utils.LoadEnvironment;
-import utils.RestAssuredUtils;
+import utils.RestAssuredUtils_old;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
@@ -34,7 +34,7 @@ public class CsvApiSteps {
     Response responseFromPUT;
     Response responseFromDELETE;
     Response response;
-    RestAssuredUtils restAssuredUtils = new RestAssuredUtils();
+    RestAssuredUtils_old restAssuredUtils = new RestAssuredUtils_old();
     ScenarioHooks hooks = new ScenarioHooks();
     ArrayList<String> params = new ArrayList<String>();
     Map<String, String> b2bParamKeyValues = new HashMap<>();
