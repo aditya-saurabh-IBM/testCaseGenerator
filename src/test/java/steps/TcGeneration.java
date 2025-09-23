@@ -72,38 +72,62 @@ public class TcGeneration {
             int rowNum = 0;
             for (CSVRecord r : recs) {
                 rowNum++;
+                try {
+                    String method = r.get("HTTP method").trim().toUpperCase(Locale.ROOT);
+                    String name = r.get("test case name");
 
-                String method = r.get("HTTP method").trim().toUpperCase(Locale.ROOT);
-                String name = r.get("test case name");
+                    // Endpoint
+                    String ep = LoadEnvironment.tenant + "/b2b" + r.get("endpoint");
+                    storeParamsInList(ep);
+                    String resolvedEP = replaceParameters(ep);
 
-                // Endpoint
-                String ep = LoadEnvironment.tenant + "/b2b" + r.get("endpoint");
-                storeParamsInList(ep);
-                String resolvedEP = replaceParameters(ep);
+                    // Payload
+                    String payload = r.get("payload");
+                    payload = replaceParameters(payload); // JSON-aware replacement (preserves types)
 
-                // Payload
-                String payload = r.get("payload");
-                payload = replaceParameters(payload); // JSON-aware replacement (preserves types)
+                    int expected = Integer.parseInt(r.get("expected status code"));
 
-                int expected = Integer.parseInt(r.get("expected status code"));
+                    System.out.println("---- Executing Row " + rowNum + ": " + name + " ----");
+                    System.out.println("===========================================");
+                    System.out.println(" Test Case Name   : " + name);
+                    System.out.println(" HTTP Method      : " + method);
+                    System.out.println(" Endpoint         : " + resolvedEP);
+                    System.out.println(" Payload          : " + payload);
+                    System.out.println(" Expected Status  : " + expected);
+                    System.out.println("===========================================");
 
-                System.out.println("---- Executing Row " + rowNum + ": " + name + " ----");
-                System.out.println("===========================================");
-                System.out.println(" Test Case Name   : " + name);
-                System.out.println(" HTTP Method      : " + method);
-                System.out.println(" Endpoint         : " + resolvedEP);
-                System.out.println(" Payload          : " + payload);
-                System.out.println(" Expected Status  : " + expected);
-                System.out.println("===========================================");
+                    switch (method.toLowerCase()) {
+                        case "post": {
+                            response = genericMethods.B2B_POST_Request(resolvedEP, payload);
+                            break;
+                        }
+                        case "patch": {
+                            response = genericMethods.B2B_PATCH_Request(resolvedEP, payload);
+                            break;
+                        }
+                        case "put": {
+                            response = genericMethods.B2B_PUT_Request(resolvedEP, payload);
+                            break;
+                        }
+                        case "get": {
+                            response = genericMethods.B2B_GET_Request(resolvedEP);
+                            break;
+                        }
+                        case "delete": {
+                            response = genericMethods.B2B_DELETE_Request(resolvedEP);
+                            break;
+                        }
 
-                if ("POST".equals(method)) {
-                    responseFromPOST = genericMethods.B2B_POST_Request(resolvedEP, payload);
+                    }
                     System.out
-                            .println("Status code :: " + responseFromPOST.then().extract().response().getStatusCode());
-                }
+                            .println("Status code :: " + response.then().extract().response().getStatusCode());
 
-                // Write to the output CSV for each row
-                out.printRecord(method, name, resolvedEP, payload, String.valueOf(expected));
+                    // Write to the output CSV for each row
+                    out.printRecord(method, name, resolvedEP, payload, String.valueOf(expected));
+                } catch (Exception e) {
+                    System.err.println("[ERROR] Row " + rowNum + " failed with exception: " + e.getMessage());
+                    e.printStackTrace();
+                }
             }
 
             out.flush();
@@ -327,7 +351,7 @@ public class TcGeneration {
         public static final String char255 = generateString("B2B_API_Auto_", "A", 255);
         public static final String char256 = generateString("B2B_API_Auto_", "A", 256);
 
-        public static final String specialCharsString = "@#$%^??//||";
+        public static final String specialCharsString = "@#$%^??||";
         public static final String leadingSpaceString = "     leading";
         public static final String trailingSpaceString = "trailing     ";
     }

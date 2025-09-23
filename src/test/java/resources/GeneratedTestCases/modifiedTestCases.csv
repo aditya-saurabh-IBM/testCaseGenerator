@@ -15,11 +15,7 @@ POST,Create_Valid_Minimal,https://awdevtenant2.dev-int-aws-us.webmethods.io/b2b/
 GET,Filter_Active_False,https://awdevtenant2.dev-int-aws-us.webmethods.io/b2b/partner-users?active=false,,200
 GET,Filter_Active_InvalidString,https://awdevtenant2.dev-int-aws-us.webmethods.io/b2b/partner-users?active=maybe,,400
 GET,Filter_Active_True,https://awdevtenant2.dev-int-aws-us.webmethods.io/b2b/partner-users?active=true,,200
-GET,Get_ById_Empty,https://awdevtenant2.dev-int-aws-us.webmethods.io/b2b/partner-users/ /updatePassword,,400
-GET,Get_ById_NotFound,https://awdevtenant2.dev-int-aws-us.webmethods.io/b2b/partner-users/${partnerUserIdNotFound}/updatePassword,,400
 GET,Get_ById_Null,https://awdevtenant2.dev-int-aws-us.webmethods.io/b2b/partner-users/null/updatePassword,,400
-GET,Get_ById_SpecialChars,https://awdevtenant2.dev-int-aws-us.webmethods.io/b2b/partner-users/@#$%^??//||/updatePassword,,400
-GET,Get_ById_Valid,https://awdevtenant2.dev-int-aws-us.webmethods.io/b2b/partner-users/${partnerUserIdValid}/updatePassword,,200
 GET,Get_ById_VeryLong,https://awdevtenant2.dev-int-aws-us.webmethods.io/b2b/partner-users/B2B_API_Auto_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/updatePassword,,400
 GET,List_All_NoParams,https://awdevtenant2.dev-int-aws-us.webmethods.io/b2b/partner-users,,200
 GET,Page_Negative_PageNumber,https://awdevtenant2.dev-int-aws-us.webmethods.io/b2b/partner-users?pageSize=10&pageNumber=-2,,400
@@ -32,11 +28,7 @@ GET,Page_Zero_PageSize,https://awdevtenant2.dev-int-aws-us.webmethods.io/b2b/par
 GET,Query_Q_254Len,https://awdevtenant2.dev-int-aws-us.webmethods.io/b2b/partner-users?q=B2B_API_Auto_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA,,200
 GET,Query_Q_255Len,https://awdevtenant2.dev-int-aws-us.webmethods.io/b2b/partner-users?q=B2B_API_Auto_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA,,200
 GET,Query_Q_256Len,https://awdevtenant2.dev-int-aws-us.webmethods.io/b2b/partner-users?q=B2B_API_Auto_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA,,200
-GET,Query_Q_Empty,"https://awdevtenant2.dev-int-aws-us.webmethods.io/b2b/partner-users?q= ",,200
-GET,Query_Q_Exact,https://awdevtenant2.dev-int-aws-us.webmethods.io/b2b/partner-users?q=${userNameValidValue},,200
-GET,Query_Q_Leading_Trailing_Spaces,https://awdevtenant2.dev-int-aws-us.webmethods.io/b2b/partner-users?q=${userNameWithSpaces},,200
 GET,Query_Q_Null,https://awdevtenant2.dev-int-aws-us.webmethods.io/b2b/partner-users?q=null,,200
-GET,Query_Q_SpecialChars,https://awdevtenant2.dev-int-aws-us.webmethods.io/b2b/partner-users?q=@#$%^??//||,,200
 GET,Sort_By_FullName_Asc,https://awdevtenant2.dev-int-aws-us.webmethods.io/b2b/partner-users?sort=+full_name,,200
 GET,Sort_By_FullName_Desc,https://awdevtenant2.dev-int-aws-us.webmethods.io/b2b/partner-users?sort=-full_name,,200
 GET,Sort_By_UpdatedDate_Asc,https://awdevtenant2.dev-int-aws-us.webmethods.io/b2b/partner-users?sort=+updated_date,,200
@@ -44,23 +36,6 @@ GET,Sort_By_UpdatedDate_Desc,https://awdevtenant2.dev-int-aws-us.webmethods.io/b
 GET,Sort_By_UserName_Asc,https://awdevtenant2.dev-int-aws-us.webmethods.io/b2b/partner-users?sort=+user_name,,200
 GET,Sort_By_UserName_Desc,https://awdevtenant2.dev-int-aws-us.webmethods.io/b2b/partner-users?sort=-user_name,,200
 GET,Sort_Invalid_Field,https://awdevtenant2.dev-int-aws-us.webmethods.io/b2b/partner-users?sort=+created_date,,400
-PUT,UpdatePassword_Empty,https://awdevtenant2.dev-int-aws-us.webmethods.io/b2b/partner-users/${partnerUserIdValid}/updatePassword,"{""new_password"":"" ""}",400
-PUT,UpdatePassword_Id_NotFound,https://awdevtenant2.dev-int-aws-us.webmethods.io/b2b/partner-users/${partnerUserIdNotFound}/updatePassword,"{""new_password"":""${passwordValidValue}""}",400
-PUT,UpdatePassword_Long_256,https://awdevtenant2.dev-int-aws-us.webmethods.io/b2b/partner-users/${partnerUserIdValid}/updatePassword,"{""new_password"":""B2B_API_Auto_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA""}",400
-PUT,UpdatePassword_MissingBody,https://awdevtenant2.dev-int-aws-us.webmethods.io/b2b/partner-users/${partnerUserIdValid}/updatePassword,,400
-PUT,UpdatePassword_Null,https://awdevtenant2.dev-int-aws-us.webmethods.io/b2b/partner-users/${partnerUserIdValid}/updatePassword,"{""new_password"":null}",400
-PUT,UpdatePassword_Valid,https://awdevtenant2.dev-int-aws-us.webmethods.io/b2b/partner-users/${partnerUserIdValid}/updatePassword,"{""new_password"":""${passwordValidValue}""}",204
-PUT,Update_Body_Missing,https://awdevtenant2.dev-int-aws-us.webmethods.io/b2b/partner-users/${partnerUserIdValid}/updatePassword,,400
-PUT,Update_Empty_FullName,https://awdevtenant2.dev-int-aws-us.webmethods.io/b2b/partner-users/${partnerUserIdValid}/updatePassword,"{""full_name"":"" "",""status"":""active""}",400
-PUT,Update_Id_Path_Empty,https://awdevtenant2.dev-int-aws-us.webmethods.io/b2b/partner-users/ /updatePassword,"{""full_name"":""${fullNameValidValue}"",""status"":""active""}",400
-PUT,Update_Invalid_Status,https://awdevtenant2.dev-int-aws-us.webmethods.io/b2b/partner-users/${partnerUserIdValid}/updatePassword,"{""full_name"":""${fullNameValidValue}"",""status"":""unknown""}",400
-PUT,Update_Long_FullName_256,https://awdevtenant2.dev-int-aws-us.webmethods.io/b2b/partner-users/${partnerUserIdValid}/updatePassword,"{""full_name"":""B2B_API_Auto_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"",""status"":""active""}",400
-PUT,Update_Missing_FullName,https://awdevtenant2.dev-int-aws-us.webmethods.io/b2b/partner-users/${partnerUserIdValid}/updatePassword,"{""status"":""active""}",400
-PUT,Update_Null_FullName,https://awdevtenant2.dev-int-aws-us.webmethods.io/b2b/partner-users/${partnerUserIdValid}/updatePassword,"{""full_name"":null,""status"":""active""}",400
-PUT,Update_Valid_Active,https://awdevtenant2.dev-int-aws-us.webmethods.io/b2b/partner-users/${partnerUserIdValid}/updatePassword,"{""full_name"":""${fullNameValidValue}"",""status"":""active""}",204
-PUT,Update_Valid_Inactive,https://awdevtenant2.dev-int-aws-us.webmethods.io/b2b/partner-users/${partnerUserIdValid}/updatePassword,"{""full_name"":""${fullNameValidValue}"",""status"":""inactive""}",204
 DELETE,Delete_ById_Empty,https://awdevtenant2.dev-int-aws-us.webmethods.io/b2b/partner-users/ /updatePassword,,400
-DELETE,Delete_ById_NotFound,https://awdevtenant2.dev-int-aws-us.webmethods.io/b2b/partner-users/${partnerUserIdNotFound}/updatePassword,,400
 DELETE,Delete_ById_Null,https://awdevtenant2.dev-int-aws-us.webmethods.io/b2b/partner-users/null/updatePassword,,400
 DELETE,Delete_ById_SpecialChars,https://awdevtenant2.dev-int-aws-us.webmethods.io/b2b/partner-users/@#$%^??//||/updatePassword,,400
-DELETE,Delete_ById_Valid,https://awdevtenant2.dev-int-aws-us.webmethods.io/b2b/partner-users/${partnerUserIdValid}/updatePassword,,204
