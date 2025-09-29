@@ -9,19 +9,20 @@ import utils.LoadEnvironment;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
-import org.testng.Assert;
 import org.apache.commons.csv.CSVPrinter;
+import org.testng.Assert;
 
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.io.Reader;
-import java.util.regex.*;
+import java.io.IOException;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-public class TcGeneration {
+public class TC_GenerationAndExecution {
 
     Response responseFromPOST;
     Response responseFromGET;
@@ -32,7 +33,7 @@ public class TcGeneration {
     GenericMethods genericMethods = new GenericMethods();
     ScenarioHooks hooks = new ScenarioHooks();
 
-    ArrayList<String> params = new ArrayList<String>(); // collected if needed elsewhere
+    ArrayList<String> params = new ArrayList<>(); // collected if needed elsewhere
     Map<String, String> b2bParamKeyValues = new HashMap<>();
 
     private static final String FILE_PATH = "src/test/java/resources/parametersNotHandled/parameters.txt";
@@ -62,12 +63,12 @@ public class TcGeneration {
         }
     }
 
-    //// ============ CSV Runner ============
-
-    @Given("Iterate each row and replace the parameters in file {string}")
-    public void iterateEachRowAndRunTheTestCaseOfFile(String csvPath) throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-
+    // =================================================================================
+    // STEP 1: Replace placeholders and WRITE modifiedTestCases.csv (no execution
+    // here)
+    // =================================================================================
+    @Given("Replace parameters in file {string} and write modified CSV")
+    public void replaceParametersAndWriteModified(String csvPath) throws Exception {
         // Ensure parent directory exists
         File outFile = new File(OUTPUT_CSV);
         File parent = outFile.getParentFile();
@@ -79,78 +80,132 @@ public class TcGeneration {
         try (Reader in = new FileReader(csvPath);
                 CSVPrinter out = new CSVPrinter(new FileWriter(outFile, false), CSVFormat.DEFAULT)) {
 
-            // Always write header because we just overwrote the file
+            // Header for modified CSV
             out.printRecord("HTTP Method", "test case name", "endpoint", "payload", "expected status");
 
             Iterable<CSVRecord> recs = CSVFormat.DEFAULT.withFirstRecordAsHeader().parse(in);
-
             int rowNum = 0;
+
             for (CSVRecord r : recs) {
                 rowNum++;
                 try {
                     String method = r.get("HTTP method").trim().toUpperCase(Locale.ROOT);
                     String name = r.get("test case name");
-
-                    // Raw endpoint & payload
                     String epRaw = LoadEnvironment.tenant + "/b2b" + r.get("endpoint");
                     String payloadRaw = r.get("payload");
 
-                    // Resolve endpoint & payload TOGETHER (one pass, consistent values)
+                    // Resolve endpoint & payload TOGETHER (consistent values)
                     ResolvedPair rp = replaceParameters(epRaw, payloadRaw);
                     String resolvedEP = rp.endpoint;
                     String payload = rp.payload;
 
                     int expected = Integer.parseInt(r.get("expected status code"));
 
-                    System.out.println("---- Executing Row " + rowNum + ": " + name + " ----");
-                    System.out.println("===========================================");
-                    System.out.println(" Test Case Name   : " + name);
-                    System.out.println(" HTTP Method      : " + method);
-                    System.out.println(" Endpoint         : " + resolvedEP);
-                    System.out.println(" Payload          : " + payload);
-                    System.out.println(" Expected Status  : " + expected);
-                    System.out.println("===========================================");
+                    // Log for visibility
+                    System.out.println("---- Prepare Row " + rowNum + ": " + name + " ----");
+                    System.out.println(" HTTP Method  : " + method);
+                    System.out.println(" Endpoint     : " + resolvedEP);
+                    System.out.println(" Payload      : " + payload);
+                    System.out.println(" Expected     : " + expected);
 
-                    switch (method.toLowerCase()) {
-                        case "post": {
-                            response = genericMethods.B2B_POST_Request(resolvedEP, payload);
-                            break;
-                        }
-                        case "patch": {
-                            response = genericMethods.B2B_PATCH_Request(resolvedEP, payload);
-                            break;
-                        }
-                        case "put": {
-                            response = genericMethods.B2B_PUT_Request(resolvedEP, payload);
-                            break;
-                        }
-                        case "get": {
-                            response = genericMethods.B2B_GET_Request(resolvedEP);
-                            break;
-                        }
-                        case "delete": {
-                            response = genericMethods.B2B_DELETE_Request(resolvedEP);
-                            break;
-                        }
-                    }
-
-                    try {
-                        Assert.assertEquals(response.statusCode(), expected, "Status code does not match");
-                    } catch (AssertionError e) {
-                        System.err.println("Assertion failed: " + e.getMessage());
-                    }
-
-                    System.out.println("Status code :: " + response.then().extract().response().getStatusCode());
-
-                    // Write to the output CSV for each row
+                    // Write to modified CSV (no HTTP call here)
                     out.printRecord(method, name, resolvedEP, payload, String.valueOf(expected));
+
                 } catch (Exception e) {
-                    System.err.println("[ERROR] Row " + rowNum + " failed with exception: " + e.getMessage());
+                    System.err.println("[ERROR] Prepare Row " + rowNum + " failed: " + e.getMessage());
                     e.printStackTrace();
                 }
             }
 
             out.flush();
+            System.out.println("✅ Modified CSV written to: " + OUTPUT_CSV);
+        }
+    }
+
+    // ================================================================================
+    // STEP 2: Read modifiedTestCases.csv and EXECUTE the test cases (one by one)
+    // ================================================================================
+    @Given("Execute modified test cases from file")
+    public void executeModifiedTestCases() throws Exception {
+        File inFile = new File(OUTPUT_CSV);
+        if (!inFile.exists() || inFile.length() == 0) {
+            throw new IllegalStateException("Modified test cases file not found or empty: " + OUTPUT_CSV);
+        }
+
+        try (Reader in = new FileReader(inFile)) {
+            Iterable<CSVRecord> recs = CSVFormat.DEFAULT
+                    .withFirstRecordAsHeader()
+                    .parse(in);
+
+            int rowNum = 0;
+            List<String> failures = new ArrayList<>();
+
+            for (CSVRecord r : recs) {
+                rowNum++;
+                try {
+                    String method = r.get("HTTP Method").trim().toUpperCase(Locale.ROOT);
+                    String name = r.get("test case name");
+                    String resolvedEP = r.get("endpoint");
+                    String payload = r.get("payload");
+                    int expected = Integer.parseInt(r.get("expected status"));
+
+                    System.out.println("---- Executing Row " + rowNum + ": " + name + " ----");
+                    System.out.println(" HTTP Method  : " + method);
+                    System.out.println(" Endpoint     : " + resolvedEP);
+                    System.out.println(" Payload      : " + payload);
+                    System.out.println(" Expected     : " + expected);
+
+                    // Make the call
+                    switch (method.toLowerCase()) {
+                        case "post":
+                            response = genericMethods.B2B_POST_Request(resolvedEP, payload);
+                            break;
+                        case "patch":
+                            response = genericMethods.B2B_PATCH_Request(resolvedEP, payload);
+                            break;
+                        case "put":
+                            response = genericMethods.B2B_PUT_Request(resolvedEP, payload);
+                            break;
+                        case "get":
+                            response = genericMethods.B2B_GET_Request(resolvedEP);
+                            break;
+                        case "delete":
+                            response = genericMethods.B2B_DELETE_Request(resolvedEP);
+                            break;
+                        default:
+                            throw new IllegalArgumentException("Unsupported HTTP method: " + method);
+                    }
+
+                    int actual = response.statusCode();
+                    System.out.println(" Actual Status : " + actual);
+
+                    if (actual != expected) {
+                        String msg = "[FAIL] Row " + rowNum + " (" + name + ") Expected=" + expected + " | Actual="
+                                + actual;
+                        System.err.println(msg);
+                        failures.add(msg);
+                    } else {
+                        System.out.println("[PASS] Row " + rowNum + " (" + name + ")");
+                    }
+                } catch (Exception e) {
+                    String msg = "[ERROR] Exec Row " + rowNum + " failed: " + e.getMessage();
+                    System.err.println(msg);
+                    e.printStackTrace();
+                    failures.add(msg);
+                }
+            }
+
+            // Summarize at end (do not stop mid-run)
+            if (!failures.isEmpty()) {
+                System.err.println("======== EXECUTION SUMMARY: FAILURES ========");
+                for (String f : failures)
+                    System.err.println(f);
+                System.err.println("=============================================");
+                // Optionally fail the scenario:
+                // Assert.fail("Some test cases failed:\n" + String.join("\n", failures));
+            } else {
+                System.out.println("✅ All modified test cases passed.");
+            }
         }
     }
 
@@ -540,7 +595,7 @@ public class TcGeneration {
         // specific → generic
         if (hasPartner && hasUser && hasName && isValid) {
             response = genericMethods.B2B_GET_Request(LoadEnvironment.tenant + "/b2b/partner-users");
-            return response.jsonPath().getString("`partner-users`[0].user_name");
+            return response.jsonPath().getString("['partner-users'][0].user_name");
         }
 
         if (hasPartner && hasUser && hasName && isInvalid) {
@@ -548,22 +603,21 @@ public class TcGeneration {
         }
         if (hasPartner && hasUser && hasId && isValid) {
             response = genericMethods.B2B_GET_Request(LoadEnvironment.tenant + "/b2b/partner-users");
-            return response.jsonPath().getString("`partner-users`[0].id");
+            return response.jsonPath().getString("['partner-users'][0].id");
         }
         if (hasPartner && hasUser && hasId && isInvalid) {
             return Intent.PARTNER_USER_ID_INVALID;
         }
 
-        // (legacy mapping retained—consider revisiting)
+        // use valid username for generic "user name valid" cases
         if (hasUser && hasName && isValid) {
-            // earlier this mapped to PARTNER_USER_ID_INVALID; use a valid username instead
             response = genericMethods.B2B_GET_Request(LoadEnvironment.tenant + "/b2b/partner-users");
-            return response.jsonPath().getString("`partner-users`[0].user_name");
+            return response.jsonPath().getString("['partner-users'][0].user_name");
         }
 
         if (hasUser && hasName && hasSpaces && isValid) {
             response = genericMethods.B2B_GET_Request(LoadEnvironment.tenant + "/b2b/partner-users");
-            String val = response.jsonPath().getString("`partner-users`[0].user_name");
+            String val = response.jsonPath().getString("['partner-users'][0].user_name");
             return (val != null && val.length() > 1) ? val.substring(0, 1) + " " + val.substring(1) : "A B";
         }
 
@@ -572,7 +626,7 @@ public class TcGeneration {
 
         if (hasUser && hasName && isDuplicate) {
             response = genericMethods.B2B_GET_Request(LoadEnvironment.tenant + "/b2b/partner-users");
-            return response.jsonPath().getString("`partner-users`[0].user_name");
+            return response.jsonPath().getString("['partner-users'][0].user_name");
         }
 
         if (hasName && hasSpaces) {
@@ -582,12 +636,12 @@ public class TcGeneration {
 
         if (hasName && isDuplicate) {
             response = genericMethods.B2B_GET_Request(LoadEnvironment.tenant + "/b2b/partner-users");
-            return response.jsonPath().getString("`partner-users`[0].user_name");
+            return response.jsonPath().getString("['partner-users'][0].user_name");
         }
 
         if (hasName && isValid) {
             response = genericMethods.B2B_GET_Request(LoadEnvironment.tenant + "/b2b/partner-users");
-            return response.jsonPath().getString("`partner-users`[0].user_name");
+            return response.jsonPath().getString("['partner-users'][0].user_name");
         }
 
         if (hasPassword && isValid) {
