@@ -76,50 +76,103 @@ public class TC_GenerationAndExecution {
             parent.mkdirs();
         }
 
-        // OVERWRITE file each run (clear), then always write header once
-        try (Reader in = new FileReader(csvPath);
-                CSVPrinter out = new CSVPrinter(new FileWriter(outFile, false), CSVFormat.DEFAULT)) {
+        // Build explicit CSV formats to be robust with commas/newlines in payloads
+        CSVFormat inFmt = CSVFormat.DEFAULT
+                .withFirstRecordAsHeader()
+                .withIgnoreSurroundingSpaces()
+                .withTrim();
 
-            // Header for modified CSV
+        CSVFormat outFmt = CSVFormat.DEFAULT
+                .withRecordSeparator(System.lineSeparator());
+
+        int total = 0, written = 0, fallback = 0;
+        List<String> fallbackReasons = new ArrayList<>();
+
+        try (Reader in = new FileReader(csvPath);
+                CSVPrinter out = new CSVPrinter(new FileWriter(outFile, false), outFmt)) {
+
+            // Write header (Step-2 expects these exact names)
             out.printRecord("HTTP Method", "test case name", "endpoint", "payload", "expected status");
 
-            Iterable<CSVRecord> recs = CSVFormat.DEFAULT.withFirstRecordAsHeader().parse(in);
-            int rowNum = 0;
+            Iterable<CSVRecord> recs = inFmt.parse(in);
 
             for (CSVRecord r : recs) {
-                rowNum++;
+                total++;
+                // Read raw values first (so we can always write *something*)
+                String methodRaw = safeGet(r, "HTTP method");
+                String nameRaw = safeGet(r, "test case name");
+                String endpointRaw = safeGet(r, "endpoint");
+                String payloadRaw = safeGet(r, "payload");
+                String expectedRaw = safeGet(r, "expected status code"); // keep as STRING in step-1
+
+                // Prepend base URL now (even if replacement fails we still keep it consistent)
+                String epCombinedRaw = LoadEnvironment.tenant + "/b2b" + endpointRaw;
+
+                String methodOut = methodRaw;
+                String nameOut = nameRaw;
+                String endpointOut = epCombinedRaw;
+                String payloadOut = payloadRaw;
+                String expectedOut = expectedRaw;
+
                 try {
-                    String method = r.get("HTTP method").trim().toUpperCase(Locale.ROOT);
-                    String name = r.get("test case name");
-                    String epRaw = LoadEnvironment.tenant + "/b2b" + r.get("endpoint");
-                    String payloadRaw = r.get("payload");
+                    // Resolve endpoint & payload TOGETHER so placeholders are consistent
+                    ResolvedPair rp = replaceParameters(epCombinedRaw, payloadRaw);
+                    endpointOut = rp.endpoint;
+                    payloadOut = rp.payload;
 
-                    // Resolve endpoint & payload TOGETHER (consistent values)
-                    ResolvedPair rp = replaceParameters(epRaw, payloadRaw);
-                    String resolvedEP = rp.endpoint;
-                    String payload = rp.payload;
+                    // DO NOT parse expected here—keep string; step-2 will parse when executing
+                    // Just log for visibility
+                    System.out.println("---- Prepare Row " + total + ": " + nameRaw + " ----");
+                    System.out.println(" HTTP Method  : " + methodRaw);
+                    System.out.println(" Endpoint     : " + endpointOut);
+                    System.out.println(" Payload      : " + payloadOut);
+                    System.out.println(" Expected     : " + expectedOut);
 
-                    int expected = Integer.parseInt(r.get("expected status code"));
-
-                    // Log for visibility
-                    System.out.println("---- Prepare Row " + rowNum + ": " + name + " ----");
-                    System.out.println(" HTTP Method  : " + method);
-                    System.out.println(" Endpoint     : " + resolvedEP);
-                    System.out.println(" Payload      : " + payload);
-                    System.out.println(" Expected     : " + expected);
-
-                    // Write to modified CSV (no HTTP call here)
-                    out.printRecord(method, name, resolvedEP, payload, String.valueOf(expected));
-
-                } catch (Exception e) {
-                    System.err.println("[ERROR] Prepare Row " + rowNum + " failed: " + e.getMessage());
-                    e.printStackTrace();
+                } catch (Exception ex) {
+                    // On any error, still write a row using *raw* values and note the reason
+                    fallback++;
+                    String reason = "[FALLBACK] row " + total + " (" + nameRaw + "): " + ex.getMessage();
+                    System.err.println(reason);
+                    fallbackReasons.add(reason);
+                    // endpointOut/payloadOut already default to raw versions above
                 }
+
+                // Always write a row
+                out.printRecord(
+                        nullToEmpty(methodOut).toUpperCase(Locale.ROOT),
+                        nullToEmpty(nameOut),
+                        nullToEmpty(endpointOut),
+                        nullToEmpty(payloadOut),
+                        nullToEmpty(expectedOut));
+                written++;
             }
 
             out.flush();
-            System.out.println("✅ Modified CSV written to: " + OUTPUT_CSV);
         }
+
+        System.out.println("✅ Modified CSV written to: " + OUTPUT_CSV);
+        System.out.println(
+                "Rows in source: " + total + " | Rows written: " + written + " | Fallback/Errors: " + fallback);
+        if (!fallbackReasons.isEmpty()) {
+            System.out.println("---- Fallback details (first 10) ----");
+            for (int i = 0; i < Math.min(10, fallbackReasons.size()); i++) {
+                System.out.println(fallbackReasons.get(i));
+            }
+        }
+    }
+
+    // Safe cell access (avoid NPEs or MissingColumnException)
+    private static String safeGet(CSVRecord r, String header) {
+        try {
+            String s = r.get(header);
+            return s == null ? "" : s;
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
+    private static String nullToEmpty(String s) {
+        return (s == null) ? "" : s;
     }
 
     // ================================================================================
