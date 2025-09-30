@@ -2,14 +2,17 @@
 
 ## Overview
 **TestCaseGenerator** is an automated test framework built with **Java, TestNG, Cucumber, and Maven**.  
-It generates and executes API test cases using CSV test definitions derived from **Swagger/OpenAPI specs**.
+It generates and executes API test cases using CSV test definitions derived from **Swagger**.
 
 The framework automates the following steps:
 1. **Test Data Generation**  
    - Using a prompt to ChatGPT:  
      ```
-     You are a test developer given a swagger file. 
-     Develop me all the test data for the services within the swagger file...
+     you are a test developer given a swagger file develop me all the test data for the services within the swagger file write test details in csv file with following columns - HTTP method, test case name, endpoint ,payload, expected status code consider all the boundary conditions while giving the test data example: if the type is number consider negative , positive, 0 and very large number if it is a string consider giving empty, null, large String value, string with leading / trailing spaces consider parameter name as well while generating test values. Also give value of the field as parameter and note directly value for example  if we have {partner{id: "${partnerID}",name: "${partnerName}"}, for valid value give fieldName followed by valid value like for valid partnerName partnerNameValidValue, for long string give as {longString} like this follow everywhere.
+ 
+     Additional Considerations Empty Strings and Null Values: It's important to test how the system handles empty strings ("") and null values, as these are common edge cases. Code Intelligence Maximum Allowed Lengths: If the system has a maximum allowed string length (e.g., 255 characters), test strings at lengths of 254, 255, and 256 characters to ensure proper handling and give parameter as ${256Characters} and so on. Special Characters and Whitespace: Include tests with strings that contain special characters, whitespace, or escape sequences to verify that the system processes them correctly.
+ 
+     Make all value of field as parameter in format ${...} also do refer to the webmethods B2B documentation for better test cases
      ```
    - This generates a CSV file (`partner_user_v3.csv`, etc.) with test cases:
      - HTTP Method  
@@ -70,7 +73,7 @@ src
 
 ## ⚡ Workflow
 
-### Step 1: Generate CSV from Swagger
+### Step 1: Generate CSV from Swagger using AI (prefered Chat GPT)
 Use ChatGPT with the special prompt to generate boundary-condition test cases.  
 Save CSV to:  src/test/java/resources/GeneratedTestCases/partner_user_v3.csv
 
@@ -82,6 +85,7 @@ This outputs:src/test/java/resources/GeneratedTestCases/modifiedTestCases.csv
 
 ### Step 3: Execute Test Cases
 Run the second Cucumber step:  And Execute modified test cases from file
+- For products other than B2B this step can be commented out or steps should be added to make calls ( login as well if required)
 
 
 ---
@@ -125,13 +129,3 @@ flowchart TD
 	•	Expand mapToIntent for new parameter patterns.
 	•	Support request headers and query params in CSV.
 	•	Generate allure reports in addition to Cucumber HTML.
-
-
-Prompt to generate test cases with parameters and get in csv
-you are a test developer given a swagger file develop me all the test data for the services within the swagger file write test details in csv file with following columns - HTTP method, test case name, endpoint ,payload, expected status code consider all the boundary conditions while giving the test data example: if the type is number consider negative , positive, 0 and very large number if it is a string consider giving empty, null, large String value, string with leading / trailing spaces consider parameter name as well while generating test values. Also give value of the field as parameter and note directly value for example  if we have {partner{id: "${partnerID}",name: "${partnerName}"}, for valid value give fieldName followed by valid value like for valid partnerName partnerNameValidValue, for long string give as {longString} like this follow everywhere.
- 
-Additional Considerations Empty Strings and Null Values: It's important to test how the system handles empty strings ("") and null values, as these are common edge cases. Code Intelligence Maximum Allowed Lengths: If the system has a maximum allowed string length (e.g., 255 characters), test strings at lengths of 254, 255, and 256 characters to ensure proper handling and give parameter as ${256Characters} and so on. Special Characters and Whitespace: Include tests with strings that contain special characters, whitespace, or escape sequences to verify that the system processes them correctly.
- 
-Make all value of field as parameter in format ${...}
- 
-also do refer to the webmethods B2B documentation for better test cases
