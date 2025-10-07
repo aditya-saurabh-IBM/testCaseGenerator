@@ -532,6 +532,21 @@ public class TC_GenerationAndExecution {
         public static final String specialCharsString = "@#$%^??";
         public static final String leadingSpaceString = "     leading";
         public static final String trailingSpaceString = "trailing     ";
+
+        // ====== channels ======
+        public static final String STATUS_VALID = "ACTIVE"; // adjust to your enum
+        public static final String INVALID_ENUM = "__INVALID__"; // guaranteed invalid
+        public static final String SCOPE_VALID = "PARTNER"; // adjust to your enum
+        public static final String POSITIVE_NUMBER = "1"; // parsed to int if needed
+        public static final String SORT_VALID = "name,asc"; // common sort syntax
+        public static final String Q_VALID = "name:Test"; // example query
+        public static final String DESCRIPTION_VALID = "Auto-generated description";
+        public static final String CHANNEL_TYPE_VALID = "AS2"; // adjust to your enum
+        public static final String STATE_VALID = "Active"; // adjust to your enum
+        public static final String PARTNER_SPECIFIC_VALID = "true"; // parsed to boolean in JSON
+        public static final String WHITE_SPACE_ONLY = "     "; // 5 spaces
+        public static final String ID_INVALID = "invalid-id"; // definitely invalid format
+
     }
 
     // ============================================================
@@ -641,65 +656,131 @@ public class TC_GenerationAndExecution {
         boolean isDuplicate = t.contains("another") || t.contains("duplicate") || t.contains("exist")
                 || t.contains("exists");
         boolean hasPassword = t.contains("password") || t.contains("pwd");
+
+        // channels
+        boolean hasStatus = t.contains("status");
+        boolean hasScope = t.contains("scope");
+        boolean hasSort = t.contains("sort") || t.contains("orderby") || t.contains("order");
+        boolean hasQ = t.contains("q") || t.contains("query");
+        boolean hasDescription = t.contains("description") || t.contains("desc");
+        boolean hasChannelType = t.contains("channeltype") || (t.contains("channel") && t.contains("type"));
+        boolean hasState = t.contains("state");
+        boolean hasPartnerSpec = (t.contains("partner") && t.contains("specific")) || t.contains("partnerspecific");
+        boolean isWhiteSpaceOnly = (t.contains("white") && t.contains("space") && t.contains("only"))
+                || t.contains("whitespaceonly");
+        boolean isPositiveNumber = t.contains("positive") && (t.contains("number") || t.contains("num"));
+        boolean hasEnum = t.contains("enum");
+        boolean hasChannel = t.contains("channel") || t.contains("chnl");
+
         boolean isValid = t.contains("valid") || t.contains("existing") || t.contains("correct") || t.contains("right");
         boolean isInvalid = t.contains("invalid") || (t.contains("non") && t.contains("existent")) ||
                 t.contains("bad") || (t.contains("not") && t.contains("found"));
 
         // specific → generic
-        if (hasPartner && hasUser && hasName && isValid) {
-            response = genericMethods.B2B_GET_Request(LoadEnvironment.tenant + "/b2b/partner-users");
-            return response.jsonPath().getString("['partner-users'][0].user_name");
+        // if (hasPartner && hasUser && hasName && isValid) {
+        // response = genericMethods.B2B_GET_Request(LoadEnvironment.tenant +
+        // "/b2b/partner-users");
+        // return response.jsonPath().getString("['partner-users'][0].user_name");
+        // }
+
+        // if (hasPartner && hasUser && hasName && isInvalid) {
+        // return Intent.PARTNER_USER_NAME_INVALID;
+        // }
+        // if (hasPartner && hasUser && hasId && isValid) {
+        // response = genericMethods.B2B_GET_Request(LoadEnvironment.tenant +
+        // "/b2b/partner-users");
+        // return response.jsonPath().getString("['partner-users'][0].id");
+        // }
+        // if (hasPartner && hasUser && hasId && isInvalid) {
+        // return Intent.PARTNER_USER_ID_INVALID;
+        // }
+
+        // // use valid username for generic "user name valid" cases
+        // if (hasUser && hasName && isValid) {
+        // response = genericMethods.B2B_GET_Request(LoadEnvironment.tenant +
+        // "/b2b/partner-users");
+        // return response.jsonPath().getString("['partner-users'][0].user_name");
+        // }
+
+        // if (hasUser && hasName && hasSpaces && isValid) {
+        // response = genericMethods.B2B_GET_Request(LoadEnvironment.tenant +
+        // "/b2b/partner-users");
+        // String val = response.jsonPath().getString("['partner-users'][0].user_name");
+        // return (val != null && val.length() > 1) ? val.substring(0, 1) + " " +
+        // val.substring(1) : "A B";
+        // }
+
+        // if (hasPartner && hasUser && hasId && isValid)
+        // return Intent.DEFAULT_ID_VALID;
+
+        // if (hasUser && hasName && isDuplicate) {
+        // response = genericMethods.B2B_GET_Request(LoadEnvironment.tenant +
+        // "/b2b/partner-users");
+        // return response.jsonPath().getString("['partner-users'][0].user_name");
+        // }
+
+        // if (hasName && hasSpaces) {
+        // String nameVal = "B2B_TCG_" + UUID.randomUUID().toString().replace("-",
+        // "").substring(0, 6);
+        // return (nameVal.length() > 1) ? nameVal.substring(0, 1) + " " +
+        // nameVal.substring(1) : "A B";
+        // }
+
+        // if (hasName && isDuplicate) {
+        // response = genericMethods.B2B_GET_Request(LoadEnvironment.tenant +
+        // "/b2b/partner-users");
+        // return response.jsonPath().getString("['partner-users'][0].user_name");
+        // }
+
+        // if (hasName && isValid) {
+        // response = genericMethods.B2B_GET_Request(LoadEnvironment.tenant +
+        // "/b2b/partner-users");
+        // return response.jsonPath().getString("['partner-users'][0].user_name");
+        // }
+
+        // if (hasPassword && isValid) {
+        // return "Password@123";
+        // }
+
+        // channels
+
+        if (hasChannel && hasId && isValid) {
+            response = genericMethods.B2B_GET_Request(LoadEnvironment.tenant + "/b2b/channels");
+            String id = response.jsonPath().getString("configurations[0].id");
+
+            return id;
+        }
+        if (hasChannel && hasName && isValid) {
+            response = genericMethods.B2B_GET_Request(LoadEnvironment.tenant + "/b2b/channels");
+            String name = response.jsonPath().getString("configurations[0].name");
+
+            return name;
         }
 
-        if (hasPartner && hasUser && hasName && isInvalid) {
-            return Intent.PARTNER_USER_NAME_INVALID;
-        }
-        if (hasPartner && hasUser && hasId && isValid) {
-            response = genericMethods.B2B_GET_Request(LoadEnvironment.tenant + "/b2b/partner-users");
-            return response.jsonPath().getString("['partner-users'][0].id");
-        }
-        if (hasPartner && hasUser && hasId && isInvalid) {
-            return Intent.PARTNER_USER_ID_INVALID;
-        }
-
-        // use valid username for generic "user name valid" cases
-        if (hasUser && hasName && isValid) {
-            response = genericMethods.B2B_GET_Request(LoadEnvironment.tenant + "/b2b/partner-users");
-            return response.jsonPath().getString("['partner-users'][0].user_name");
-        }
-
-        if (hasUser && hasName && hasSpaces && isValid) {
-            response = genericMethods.B2B_GET_Request(LoadEnvironment.tenant + "/b2b/partner-users");
-            String val = response.jsonPath().getString("['partner-users'][0].user_name");
-            return (val != null && val.length() > 1) ? val.substring(0, 1) + " " + val.substring(1) : "A B";
-        }
-
-        if (hasId && isValid)
-            return Intent.DEFAULT_ID_VALID;
-
-        if (hasUser && hasName && isDuplicate) {
-            response = genericMethods.B2B_GET_Request(LoadEnvironment.tenant + "/b2b/partner-users");
-            return response.jsonPath().getString("['partner-users'][0].user_name");
-        }
-
-        if (hasName && hasSpaces) {
-            String nameVal = "B2B_TCG_" + UUID.randomUUID().toString().replace("-", "").substring(0, 6);
-            return (nameVal.length() > 1) ? nameVal.substring(0, 1) + " " + nameVal.substring(1) : "A B";
-        }
-
-        if (hasName && isDuplicate) {
-            response = genericMethods.B2B_GET_Request(LoadEnvironment.tenant + "/b2b/partner-users");
-            return response.jsonPath().getString("['partner-users'][0].user_name");
-        }
-
-        if (hasName && isValid) {
-            response = genericMethods.B2B_GET_Request(LoadEnvironment.tenant + "/b2b/partner-users");
-            return response.jsonPath().getString("['partner-users'][0].user_name");
-        }
-
-        if (hasPassword && isValid) {
-            return "Password@123";
-        }
+        if (hasStatus && isValid)
+            return Intent.STATUS_VALID; // statusValidValue
+        if (hasEnum && isInvalid)
+            return Intent.INVALID_ENUM; // invalidEnumValue
+        if (hasScope && isValid)
+            return Intent.SCOPE_VALID; // scopeValidValue
+        if (isPositiveNumber)
+            return Intent.POSITIVE_NUMBER; // positiveNumber
+        if (hasSort && isValid)
+            return Intent.SORT_VALID; // sortValidValue
+        if (hasQ && isValid)
+            return Intent.Q_VALID; // qValidValue
+        if (hasDescription && isValid)
+            return Intent.DESCRIPTION_VALID; // descriptionValidValue
+        if (hasChannelType && isValid)
+            return Intent.CHANNEL_TYPE_VALID; // channeltypeValidValue
+        if (hasState && isValid)
+            return Intent.STATE_VALID; // stateValidValue
+        if (hasPartnerSpec && isValid)
+            return Intent.PARTNER_SPECIFIC_VALID; // partnerSpecificValidValue
+        if (isWhiteSpaceOnly)
+            return Intent.WHITE_SPACE_ONLY; // whiteSpaceOnly
+        if (hasChannel && hasId && isInvalid)
+            return Intent.ID_INVALID; // idInvalidValue
 
         return "UNKNOWN"; // caller logs and preserves placeholder
     }
